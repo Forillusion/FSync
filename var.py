@@ -27,7 +27,7 @@ class Singleton(metaclass=SingletonMeta): # 使用 SingletonMeta 作为元类来
     quitFlag = False
     def __init__(self):
         pass
-
+v=Singleton()
 # 测试单例模式
 if __name__ == "__main__":
     s1 = Singleton()

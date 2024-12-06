@@ -11,11 +11,11 @@ from api.delete import deleteFile
 from api.getToken import getToken
 from tools import localPathToCloud
 from api.upload import uploadComplete, uploadAsyncResult, createFile, getUploadUrl
-from var import Singleton
+from var import v
 
 def preThread():
     # upQueue, sliceQueue, reUpQueue, checkQueue, finishQueue, failQueue, localRoot, cloudRoot, localData, cloudData=
-    v=Singleton()
+
     upQueue = v.upQueue
     sliceQueue = v.sliceQueue
     reUpQueue = v.reUpQueue
@@ -149,7 +149,6 @@ def preThread():
 
 
 def upThread():
-    v=Singleton()
     upQueue = v.upQueue
     sliceQueue = v.sliceQueue
     reUpQueue = v.reUpQueue
@@ -208,7 +207,6 @@ def upThread():
 
 
 def checkThread():
-    v=Singleton()
     upQueue = v.upQueue
     sliceQueue = v.sliceQueue
     reUpQueue = v.reUpQueue

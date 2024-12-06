@@ -15,7 +15,7 @@ from upProcess import upProcess
 import upThreads as up
 import threading
 import multiprocessing
-from var import Singleton
+from var import v
 
 # 1.读取文件
 # 2.获取文件大小
@@ -31,7 +31,6 @@ from var import Singleton
 # 10.异步轮询获取上传结果
 
 # token= Token.getToken
-v=Singleton()
 
 def startUp():
     thread1 = threading.Thread(target=up.preThread)
