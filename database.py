@@ -5,6 +5,15 @@ from tools import splitPath
 
 
 def load(path):
+    # 如果文件夹不存在，创建文件夹
+    folders=splitPath(path)
+    print(folders)
+    current=""
+    for folder in folders[:-1]:
+        current+=folder+"\\"
+        if not os.path.exists(current):
+            os.mkdir(current)
+
     if not os.path.exists(path):
         save(path,"")
 
