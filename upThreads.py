@@ -116,7 +116,7 @@ def preThread():
             v.preThreadIdle = False
             get = reUpQueue.get()
             console(1, f"重新上传队列获取到文件 {get['fillName']}")
-            if get["tryTime"] < maxTryTime:
+            if get["tryTime"] < v.maxTryTime:
                 console(1, f"{get['fillName']} 重试次数 {get['tryTime']}")
                 upQueue.append(get)
 
@@ -196,9 +196,9 @@ def upThread():
                     break
                 else:
                     console(2, f"{current['fillName']} 分片 {current['currentSlice']} 上传失败")
-                    if tryTime >= maxTryTime:
+                    if tryTime >= v.maxTryTime:
                         cleanFile = current["path"]
-                        console(2, f"{current['fillName']} 上传失败次数超过 {maxTryTime} 次，加入重新上传队列")
+                        console(2, f"{current['fillName']} 上传失败次数超过 {v.maxTryTime} 次，加入重新上传队列")
                         reUpQueue.put(current)
                         break
         else:
@@ -276,9 +276,6 @@ def console(index, msg):
     l = int((index - 1) * cols * (1 / 3))
     print(" " * l, end="")
     print(msg)
-
-
-maxTryTime = 3
 
 upSteam = multiprocessing.Queue()
 controlSteam = multiprocessing.Queue()

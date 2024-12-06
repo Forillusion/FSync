@@ -21,6 +21,7 @@ class Singleton(metaclass=SingletonMeta): # 使用 SingletonMeta 作为元类来
     finishQueue = []
     sliceQueue = queue.Queue()
 
+    maxTryTime = 3
     preThreadIdle = False
     upThreadIdle = False
     checkThreadIdle = False

@@ -1,6 +1,6 @@
-db/cloudData.json
-db/localData.json
-api/AKSK.txt
-api/Token.txt
+/db/cloudData.json
+/db/localData.json
+/api/AKSK.txt
+/api/Token.txt
 */__pycache__/
 *.pyc
