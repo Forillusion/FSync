@@ -6,7 +6,7 @@ from hashlib import md5
 from time import sleep
 
 from database import updataBothData
-from findID import getCloudFloderID, getCloudFileID, getParentID
+from findID import findFloaderID, findFileID, findParentID
 from api.delete import deleteFile
 from tools import localPathToCloud
 from api.upload import uploadComplete, uploadAsyncResult, createFile, getUploadUrl
@@ -31,17 +31,17 @@ def preThread():
     returnSteam = v.returnSteam
 
     def preCreateFolder():
-        code, dirID = getCloudFloderID(current["path"], cloudData, localRoot, cloudRoot)
+        code, dirID = findFloaderID(current["path"])
         if code != 0:
             console(1, f"{current['fillName']} 文件夹创建失败")
             reUpQueue.put(current)
 
         console(1, f"{current['fillName']} 文件夹创建成功")
-        updataBothData(localData, cloudData, current["path"], localPathToCloud(current["path"],localRoot,cloudRoot), "create folder", 0,dirID)
+        updataBothData(localData, cloudData, current["path"], localPathToCloud(current["path"]), "create folder", 0, dirID)
         finishQueue.append(current)
 
     def preDeleteFolder():
-        code, dirID = getCloudFloderID(current["path"], cloudData, localRoot, cloudRoot)
+        code, dirID = findFloaderID(current["path"])
         if code == 0:
             code = deleteFile(dirID)
 
@@ -49,11 +49,11 @@ def preThread():
             console(1, f"{current['fillName']} 删除云盘文件夹失败")
             reUpQueue.put(current)
         console(1, f"{current['fillName']} 删除云盘文件夹成功")
-        updataBothData(localData, cloudData, current["path"], localPathToCloud(current["path"],localRoot,cloudRoot), "delete folder")
+        updataBothData(localData, cloudData, current["path"], localPathToCloud(current["path"]), "delete folder")
         finishQueue.append(current)
 
     def preDeleteFile():
-        code,fileID = getCloudFileID(current["path"], cloudData, localRoot, cloudRoot)
+        code,fileID = findFileID(current["path"])
         if code==0:
             code = deleteFile(fileID)
 
@@ -62,7 +62,7 @@ def preThread():
             reUpQueue.put(current)
 
         console(1, f"{current['fillName']} 删除云盘文件成功")
-        updataBothData(localData, cloudData, current["path"], localPathToCloud(current["path"],localRoot,cloudRoot), "delete file")
+        updataBothData(localData, cloudData, current["path"], localPathToCloud(current["path"]), "delete file")
         sleep(0.5)
         if current["status"] == "update file":
             current["status"] = "create file"
@@ -74,7 +74,7 @@ def preThread():
         md5 = getMD5(current["path"], 2 ** 22)  # 2**22 = 4MB
         fileName = os.path.basename(current["path"])
 
-        code,parentFileId = getParentID(current["path"], cloudData, localRoot, cloudRoot)
+        code,parentFileId = findParentID(current["path"])
         if code==0:
             current["parentFileId"]=parentFileId
             code, preuploadID, reuse, sliceSize,fileID = createFile(current["parentFileId"], fileName, md5, size)
@@ -86,7 +86,7 @@ def preThread():
 
         current["reuse"] = reuse
         if reuse:
-            updataBothData(localData, cloudData, current["path"], localPathToCloud(current["path"],localRoot,cloudRoot), "create file", current["time"], fileID)
+            updataBothData(localData, cloudData, current["path"], localPathToCloud(current["path"]), "create file", current["time"], fileID)
             console(1, f"\033[32m{current["fillName"]} 秒传成功\033[0m")
             finishQueue.append(current)
             sleep(0.5)
@@ -237,7 +237,7 @@ def checkThread():
                     sleep(0.5)
 
             if code == 0:
-                updataBothData(localData, cloudData, current["path"], localPathToCloud(current["path"],localRoot,cloudRoot), "create file", current["time"],fileID)
+                updataBothData(localData, cloudData, current["path"], localPathToCloud(current["path"]), "create file", current["time"], fileID)
                 finishQueue.append(current)
                 console(3, f"\033[32m{current["fillName"]}上传完成\033[0m")
             else:

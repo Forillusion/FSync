@@ -1,5 +1,5 @@
 import time
-
+from var import v
 
 def tryRequests(func,**args):
     code=-1
@@ -23,8 +23,8 @@ def tryRequests(func,**args):
     return code,response
 
 
-def localPathToCloud(localPath,localRoot,cloudRoot):
-    return localPath.replace(localRoot,cloudRoot)
+def localPathToCloud(localPath):
+    return localPath.replace(v.localRoot,v.cloudRoot)
 
 
 splitPath = lambda x: [i for i in x.split("\\") if i != ""]
