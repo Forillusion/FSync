@@ -69,6 +69,49 @@ def preThread():
         else:
             finishQueue.append(current)
 
+    def preCreateFile():
+        size = current["size"] = getSize(current["path"])
+        md5 = getMD5(current["path"], 2 ** 22)  # 2**22 = 4MB
+        fileName = os.path.basename(current["path"])
+
+        code,parentFileId = getParentID(getToken(),current["path"],cloudData,localRoot, cloudRoot)
+        if code==0:
+            current["parentFileId"]=parentFileId
+            code, preuploadID, reuse, sliceSize,fileID = createFile(getToken(), current["parentFileId"], fileName, md5,
+                                                                    size)
+
+        if code != 0:
+            console(1, f"{current['fillName']} 创建文件失败")
+            reUpQueue.put(current)
+            return
+
+        current["reuse"] = reuse
+        if reuse:
+            updataBothData(localData, cloudData, current["path"], localPathToCloud(current["path"],localRoot,cloudRoot), "create file", current["time"], fileID)
+            console(1, f"\033[32m{current["fillName"]} 秒传成功\033[0m")
+            finishQueue.append(current)
+            sleep(0.5)
+        else:
+            current["preuploadID"] = preuploadID
+            current["sliceSize"] = sliceSize
+            current["totalSlice"] = math.ceil(size // sliceSize) + 1
+            current["finishSlice"] = 0
+            for i in range(current["totalSlice"]):
+                slice = current.copy()
+                slice["currentSlice"] = i + 1
+                slice["sliceMD5"] = getSliceMD5(current["path"], sliceSize, i + 1)
+
+                code, slice["URL"] = getUploadUrl(getToken(), current["preuploadID"], i + 1)
+                if code != 0:
+                    reUpQueue.put(current)
+                    if i != 0:
+                        sliceQueue.put({"path": current["path"], "clean": True})
+                    break
+
+                console(1, f"{slice['fillName']} 分片 {slice["currentSlice"]} 发送到分片队列")
+                sliceQueue.put(slice)
+                sleep(1)
+
     while not v.quitFlag:
         while not reUpQueue.empty():
             v.preThreadIdle = False
@@ -98,48 +141,8 @@ def preThread():
                 preDeleteFolder()
 
             if current["status"] == "create file":
+                preCreateFile()
 
-                size = current["size"] = getSize(current["path"])
-                md5 = getMD5(current["path"], 2 ** 22)  # 2**22 = 4MB
-                fileName = os.path.basename(current["path"])
-
-                code,parentFileId = getParentID(getToken(),current["path"],cloudData,localRoot, cloudRoot)
-                if code==0:
-                    current["parentFileId"]=parentFileId
-                    code, preuploadID, reuse, sliceSize,fileID = createFile(getToken(), current["parentFileId"], fileName, md5,
-                                                                 size)
-
-                if code != 0:
-                    console(1, f"{current['fillName']} 创建文件失败")
-                    reUpQueue.put(current)
-                    continue
-
-                current["reuse"] = reuse
-                if reuse:
-                    updataBothData(localData, cloudData, current["path"], localPathToCloud(current["path"],localRoot,cloudRoot), "create file", current["time"], fileID)
-                    console(1, f"\033[32m{current["fillName"]} 秒传成功\033[0m")
-                    finishQueue.append(current)
-                    sleep(0.5)
-                else:
-                    current["preuploadID"] = preuploadID
-                    current["sliceSize"] = sliceSize
-                    current["totalSlice"] = math.ceil(size // sliceSize) + 1
-                    current["finishSlice"] = 0
-                    for i in range(current["totalSlice"]):
-                        slice = current.copy()
-                        slice["currentSlice"] = i + 1
-                        slice["sliceMD5"] = getSliceMD5(current["path"], sliceSize, i + 1)
-
-                        code, slice["URL"] = getUploadUrl(getToken(), current["preuploadID"], i + 1)
-                        if code != 0:
-                            reUpQueue.put(current)
-                            if i != 0:
-                                sliceQueue.put({"path": current["path"], "clean": True})
-                            break
-
-                        console(1, f"{slice['fillName']} 分片 {slice["currentSlice"]} 发送到分片队列")
-                        sliceQueue.put(slice)
-                        sleep(1)
 
         else:
             v.preThreadIdle = True
