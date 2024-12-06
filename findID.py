@@ -1,5 +1,4 @@
-from createFolder import createFolder
-from database import updataBothData
+from api.createFolder import createFolder
 from tools import localPathToCloud, splitPath
 from time import sleep
 

@@ -39,7 +39,7 @@ def updateCloudData(data, path, status, id=0, autoSave=True):
         del current[folders[-1]]
 
     if autoSave:
-        save("cloudData.json",data)
+        save("db/cloudData.json", data)
 
 def updataLocalData(data, path, status, time=0, autoSave=True):
     folders=splitPath(path)
@@ -65,7 +65,7 @@ def updataLocalData(data, path, status, time=0, autoSave=True):
         del current[folders[-1]]
 
     if autoSave:
-        save("localData.json",data)
+        save("db/localData.json", data)
 
 def updataBothData(localData, cloudData,localPath,cloudPath,status,time=0,id=0,autoSave=True):
     updataLocalData(localData,localPath,status,time,autoSave)

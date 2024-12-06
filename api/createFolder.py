@@ -1,5 +1,4 @@
 import requests
-import getToken as Token
 from tools import tryRequests
 
 host = "https://open-api.123pan.com"

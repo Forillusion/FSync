@@ -1,6 +1,6 @@
 import requests
 import time
-import getToken as Token
+from api import getToken as Token
 import hashlib
 import math
 import os

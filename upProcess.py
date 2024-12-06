@@ -1,6 +1,6 @@
 from time import sleep
 
-from upload import uploadFileSlice
+from api.upload import uploadFileSlice
 
 
 def upProcess(upSteam, controlSteam, returnSteam):

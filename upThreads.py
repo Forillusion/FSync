@@ -2,17 +2,15 @@ import hashlib
 import math
 import multiprocessing
 import os
-import queue
 from hashlib import md5
 from time import sleep
 
-from createFolder import createFolder
 from database import updataBothData
 from findID import getCloudFloderID, getCloudFileID, getParentID
-from delete import deleteFile
-from getToken import getToken
+from api.delete import deleteFile
+from api.getToken import getToken
 from tools import localPathToCloud
-from upload import uploadComplete, uploadAsyncResult, createFile, getUploadUrl
+from api.upload import uploadComplete, uploadAsyncResult, createFile, getUploadUrl
 from var import Singleton
 
 def preThread():

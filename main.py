@@ -59,8 +59,8 @@ def startUp():
 if __name__ == '__main__':
     multiprocessing.freeze_support()
 
-    v.cloudData =load("cloudData.json")
-    v.localData =load("localData.json")
+    v.cloudData =load("db/cloudData.json")
+    v.localData =load("db/localData.json")
     if v.cloudData == "":
         v.cloudData ={":id":0,"test":{":id":10767340}}
     else:
