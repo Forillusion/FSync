@@ -235,7 +235,7 @@ def checkThread():
             elif ifasync:
                 while code == 0 and not completed:
                     code, completed,fileID = uploadAsyncResult(getToken(), current["preuploadID"])
-                    sleep(1)
+                    sleep(0.5)
 
             if code == 0:
                 updataBothData(localData, cloudData, current["path"], localPathToCloud(current["path"],localRoot,cloudRoot), "create file", current["time"],fileID)

@@ -4,6 +4,8 @@ from api import getToken as Token
 import hashlib
 import math
 import os
+
+from api.getToken import getToken
 from dataWithCallback import DataWithCallback
 from tools import tryRequests
 
@@ -20,7 +22,7 @@ verify=True
 def createFile(token, parentFileId, filename, etag, size):
     url=host+"/upload/v1/file/create"
     headers = {
-        "Authorization": "Bearer "+token,
+        "Authorization": "Bearer "+getToken(),
         "Platform":"open_platform"
     }
     data = {
@@ -41,7 +43,7 @@ def createFile(token, parentFileId, filename, etag, size):
 def getListUploadParts(token, preuploadID):
     url=host+"/upload/v1/file/list_upload_parts"
     headers = {
-        "Authorization": "Bearer "+token,
+        "Authorization": "Bearer "+getToken(),
         "Platform":"open_platform"
     }
     data = {
@@ -59,7 +61,7 @@ def getListUploadParts(token, preuploadID):
 def getUploadUrl(token, preuploadID,sliceNo=1):
     url=host+"/upload/v1/file/get_upload_url"
     headers = {
-        "Authorization": "Bearer "+token,
+        "Authorization": "Bearer "+getToken(),
         "Platform":"open_platform"
     }
     data = {
@@ -117,7 +119,7 @@ def uploadFileSlice(url,filePath,sliceSize,sliceNo=1):
 def uploadComplete(token, preuploadID):
     url=host+"/upload/v1/file/upload_complete"
     headers = {
-        "Authorization": "Bearer "+token,
+        "Authorization": "Bearer "+getToken(),
         "Platform":"open_platform"
     }
     data = {
@@ -136,7 +138,7 @@ def uploadComplete(token, preuploadID):
 def uploadAsyncResult(token, preuploadID):
     url=host+"/upload/v1/file/upload_async_result"
     headers = {
-        "Authorization": "Bearer "+token,
+        "Authorization": "Bearer "+getToken(),
         "Platform":"open_platform"
     }
     data = {

@@ -3,6 +3,8 @@ import time
 import hashlib
 import math
 import os
+
+from api.getToken import getToken
 from dataWithCallback import DataWithCallback
 from tools import tryRequests
 
@@ -19,7 +21,7 @@ verify=True
 def deleteFile(token, fileIDs):
     url=host+"/api/v1/file/trash"
     headers = {
-        "Authorization": "Bearer "+token,
+        "Authorization": "Bearer "+getToken(),
         "Platform":"open_platform"
     }
     data = {

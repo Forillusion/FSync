@@ -1,4 +1,6 @@
 import requests
+
+from api.getToken import getToken
 from tools import tryRequests
 
 host = "https://open-api.123pan.com"
@@ -14,7 +16,7 @@ verify=True
 def createFolder(token, parentID, folderName):
     url=host+"/upload/v1/file/mkdir"
     headers = {
-        "Authorization": "Bearer "+token,
+        "Authorization": "Bearer "+ getToken(),
         "Platform":"open_platform"
     }
     data = {
