@@ -151,71 +151,71 @@ def uploadAsyncResult(preuploadID):
         return code,True,0
     return code,response.json()["data"]["completed"],response.json()["data"]["fileID"]
 
-#计算文件md5
-def getMD5(file):
-    L=time.perf_counter()
-    md5 = hashlib.md5(file).hexdigest()
-    print("文件总MD5计算用时(ms):",(time.perf_counter()-L)*1000)
-    return md5
+# #计算文件md5
+# def getMD5(file):
+#     L=time.perf_counter()
+#     md5 = hashlib.md5(file).hexdigest()
+#     print("文件总MD5计算用时(ms):",(time.perf_counter()-L)*1000)
+#     return md5
 
-#计算分片md5
-def getSliceMD5(filePath,sliceSize,sliceNo=1):
-    L=time.perf_counter()
-    with open(filePath, 'rb') as f:
-        f.seek((sliceNo-1)*sliceSize)
-        data = f.read(sliceSize)
-        md5 = hashlib.md5(data).hexdigest()
-        print("分片MD5计算用时(ms):",(time.perf_counter()-L)*1000)
-        return md5
+# #计算分片md5
+# def getSliceMD5(filePath,sliceSize,sliceNo=1):
+#     L=time.perf_counter()
+#     with open(filePath, 'rb') as f:
+#         f.seek((sliceNo-1)*sliceSize)
+#         data = f.read(sliceSize)
+#         md5 = hashlib.md5(data).hexdigest()
+#         print("分片MD5计算用时(ms):",(time.perf_counter()-L)*1000)
+#         return md5
 
-#计算文件大小，单位为 byte 字节
-def getSize(filePath):
-    return os.path.getsize(filePath)
-
-def upload(path,parentFileId):
-    with open(path, 'rb') as f:
-        L=time.perf_counter()
-        file=f.read()
-        print("文件加载用时(ms):",(time.perf_counter()-L)*1000)
-
-        token=Token.getToken()
-        fileName=os.path.basename(path)
-        MD5=getMD5(file)
-
-        size=len(file)
-
-        if (size/1024/1024>=1024):
-            print(f"文件大小{size/1024/1024/1024:.2f}GB")
-        else:
-            print(f"文件大小{size/1024/1024:.2f}MB")
-
-        preuploadID,reuse,sliceSize= createFile(parentFileId, fileName, MD5, size)
-        print("分片大小：",sliceSize/1024/1024,"MB")
-
-        if reuse:
-            print("秒传成功")
-
-        elif size<=sliceSize:
-            upurl= getUploadUrl(preuploadID)
-            uploadFileSlice(upurl,file,sliceSize)
-            uploadComplete(preuploadID)
-
-        else:
-            totalSlice=math.ceil(size/sliceSize)
-            print("分片总数：",totalSlice)
-
-            currentSlice=1
-            while currentSlice<=totalSlice:
-                upurl= getUploadUrl(preuploadID, currentSlice)
-                status=uploadFileSlice(upurl,file,sliceSize,currentSlice)
-                if status==200:
-                    currentSlice+=1
-
-            completed,ifasync= uploadComplete(preuploadID)
-            if completed:
-                print("\033[32m上传完成\033[0m")
-            elif ifasync:
-                while not completed:
-                    time.sleep(2)
-                    completed= uploadAsyncResult(preuploadID)
-                print("\033[32m上传完成\033[0m")
+# #计算文件大小，单位为 byte 字节
+# def getSize(filePath):
+#     return os.path.getsize(filePath)
+#
+# def upload(path,parentFileId):
+#     with open(path, 'rb') as f:
+#         L=time.perf_counter()
+#         file=f.read()
+#         print("文件加载用时(ms):",(time.perf_counter()-L)*1000)
+#
+#         token=Token.getToken()
+#         fileName=os.path.basename(path)
+#         MD5=getMD5(file)
+#
+#         size=len(file)
+#
+#         if (size/1024/1024>=1024):
+#             print(f"文件大小{size/1024/1024/1024:.2f}GB")
+#         else:
+#             print(f"文件大小{size/1024/1024:.2f}MB")
+#
+#         preuploadID,reuse,sliceSize= createFile(parentFileId, fileName, MD5, size)
+#         print("分片大小：",sliceSize/1024/1024,"MB")
+#
+#         if reuse:
+#             print("秒传成功")
+#
+#         elif size<=sliceSize:
+#             upurl= getUploadUrl(preuploadID)
+#             uploadFileSlice(upurl,file,sliceSize)
+#             uploadComplete(preuploadID)
+#
+#         else:
+#             totalSlice=math.ceil(size/sliceSize)
+#             print("分片总数：",totalSlice)
+#
+#             currentSlice=1
+#             while currentSlice<=totalSlice:
+#                 upurl= getUploadUrl(preuploadID, currentSlice)
+#                 status=uploadFileSlice(upurl,file,sliceSize,currentSlice)
+#                 if status==200:
+#                     currentSlice+=1
+#
+#             completed,ifasync= uploadComplete(preuploadID)
+#             if completed:
+#                 print("\033[32m上传完成\033[0m")
+#             elif ifasync:
+#                 while not completed:
+#                     time.sleep(2)
+#                     completed= uploadAsyncResult(preuploadID)
+#                 print("\033[32m上传完成\033[0m")
