@@ -78,6 +78,7 @@ if __name__ == '__main__':
 
     A,B,C=compareData(v.localData, v.scanData, v.localRoot)
     v.upQueue=generateQueue(A,B,C)
+    v.upQueue.reverse()
 
     print("需要创建的文件:")
     print(A)
