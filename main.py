@@ -39,7 +39,8 @@ def startUp():
     thread2.start()
     thread3 = threading.Thread(target=up.checkThread)
     thread3.start()
-    p = multiprocessing.Process(target=upProcess, args=(up.upSteam, up.controlSteam, up.returnSteam,),
+
+    p = multiprocessing.Process(target=upProcess, args=(v.upSteam, v.controlSteam, v.returnSteam,),
                                 name='UI_Process')
     p.start()
     while not v.quitFlag:
@@ -47,7 +48,7 @@ def startUp():
         if (len(v.upQueue) == 0 and v.reUpQueue.empty() and v.sliceQueue.empty()
                 and v.checkQueue.empty() and v.preThreadIdle and v.upThreadIdle and v.checkThreadIdle):
             v.quitFlag = True
-            up.controlSteam.put("quit")
+            v.controlSteam.put("quit")
 
             thread1.join()
             thread2.join()
@@ -60,7 +61,7 @@ if __name__ == '__main__':
 
     v.cloudData =load(r"db\cloudData.json")
     v.localData =load(r"db\localData.json")
-    
+
     if v.cloudData == "":
         v.cloudData ={":id":0,"test":{":id":10767340}}
     else:

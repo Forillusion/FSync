@@ -8,7 +8,6 @@ from time import sleep
 from database import updataBothData
 from findID import getCloudFloderID, getCloudFileID, getParentID
 from api.delete import deleteFile
-from api.getToken import getToken
 from tools import localPathToCloud
 from api.upload import uploadComplete, uploadAsyncResult, createFile, getUploadUrl
 from var import v
@@ -27,11 +26,12 @@ def preThread():
     localData = v.localData
     cloudData = v.cloudData
 
-    preThreadIdle = v.preThreadIdle
-    quitFlag = v.quitFlag
+    upSteam = v.upSteam
+    controlSteam = v.controlSteam
+    returnSteam = v.returnSteam
 
     def preCreateFolder():
-        code, dirID = getCloudFloderID(getToken(), current["path"],cloudData,localRoot, cloudRoot)
+        code, dirID = getCloudFloderID(current["path"], cloudData, localRoot, cloudRoot)
         if code != 0:
             console(1, f"{current['fillName']} 文件夹创建失败")
             reUpQueue.put(current)
@@ -41,7 +41,7 @@ def preThread():
         finishQueue.append(current)
 
     def preDeleteFolder():
-        code, dirID = getCloudFloderID(getToken(), current["path"],cloudData,localRoot, cloudRoot)
+        code, dirID = getCloudFloderID(current["path"], cloudData, localRoot, cloudRoot)
         if code == 0:
             code = deleteFile(dirID)
 
@@ -53,7 +53,7 @@ def preThread():
         finishQueue.append(current)
 
     def preDeleteFile():
-        code,fileID = getCloudFileID(getToken(), current["path"],cloudData,localRoot, cloudRoot)
+        code,fileID = getCloudFileID(current["path"], cloudData, localRoot, cloudRoot)
         if code==0:
             code = deleteFile(fileID)
 
@@ -74,7 +74,7 @@ def preThread():
         md5 = getMD5(current["path"], 2 ** 22)  # 2**22 = 4MB
         fileName = os.path.basename(current["path"])
 
-        code,parentFileId = getParentID(getToken(),current["path"],cloudData,localRoot, cloudRoot)
+        code,parentFileId = getParentID(current["path"], cloudData, localRoot, cloudRoot)
         if code==0:
             current["parentFileId"]=parentFileId
             code, preuploadID, reuse, sliceSize,fileID = createFile(current["parentFileId"], fileName, md5, size)
@@ -160,10 +160,10 @@ def upThread():
     localData = v.localData
     cloudData = v.cloudData
 
-    upThreadIdle = v.upThreadIdle
-    quitFlag = v.quitFlag
-    global upSteam
-    global returnSteam
+    upSteam = v.upSteam
+    controlSteam = v.controlSteam
+    returnSteam = v.returnSteam
+
     cleanFile = ""
     while not v.quitFlag:
         if not sliceQueue.empty():
@@ -218,8 +218,10 @@ def checkThread():
     localData = v.localData
     cloudData = v.cloudData
 
-    checkThreadIdle = v.checkThreadIdle
-    quitFlag = v.quitFlag
+    upSteam = v.upSteam
+    controlSteam = v.controlSteam
+    returnSteam = v.returnSteam
+
     while not v.quitFlag:
         if not checkQueue.empty():
             v.checkThreadIdle = False
@@ -277,7 +279,4 @@ def console(index, msg):
     print(" " * l, end="")
     print(msg)
 
-upSteam = multiprocessing.Queue()
-controlSteam = multiprocessing.Queue()
-returnSteam = multiprocessing.Queue()
 

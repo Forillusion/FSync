@@ -1,3 +1,4 @@
+import multiprocessing
 import queue
 
 
@@ -26,6 +27,10 @@ class Singleton(metaclass=SingletonMeta): # 使用 SingletonMeta 作为元类来
     upThreadIdle = False
     checkThreadIdle = False
     quitFlag = False
+
+    upSteam = multiprocessing.Queue()
+    controlSteam = multiprocessing.Queue()
+    returnSteam = multiprocessing.Queue()
     def __init__(self):
         pass
 v=Singleton()

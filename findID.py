@@ -2,7 +2,7 @@ from api.createFolder import createFolder
 from tools import localPathToCloud, splitPath
 from time import sleep
 
-def findFloaderID(token,cloudPath, data):
+def findFloaderID(cloudPath, data):
     # 给出一个文件夹路径，返回文件夹的id，如果不存在则创建
     folders=splitPath(cloudPath)
     # print(folders)
@@ -21,13 +21,13 @@ def findFloaderID(token,cloudPath, data):
     return code,current[":id"]
 
 
-def getCloudFloderID(token, path, cloudData, localRoot, cloudRoot):
+def getCloudFloderID(path, cloudData, localRoot, cloudRoot):
     # 给出一个本地文件夹路径，转换为云盘文件夹路径，然后返回文件夹的id，如果不存在则创建
     path=localPathToCloud(path,localRoot,cloudRoot)
-    return findFloaderID(token,path, cloudData)
+    return findFloaderID(path, cloudData)
 
 
-def findFileID(token, cloudPath, data):
+def findFileID(cloudPath, data):
     # 给出一个文件路径，返回文件的id
     folders=splitPath(cloudPath)
     filename=folders[-1]
@@ -52,11 +52,11 @@ def findFileID(token, cloudPath, data):
     return code,current[filename][":id"]
 
 
-def getCloudFileID(token, path, cloudData, localRoot, cloudRoot):
+def getCloudFileID(path, cloudData, localRoot, cloudRoot):
     path=localPathToCloud(path,localRoot,cloudRoot)
-    return findFileID(token,path, cloudData)
+    return findFileID(path, cloudData)
 
-def findParentID(token, cloudPath, data):
+def findParentID(cloudPath, data):
     folders=splitPath(cloudPath)
     filename=folders[-1]
     folders=folders[:-1]
@@ -74,9 +74,9 @@ def findParentID(token, cloudPath, data):
 
     return code,current[":id"]
 
-def getParentID(token, path, cloudData, localRoot, cloudRoot):
+def getParentID(path, cloudData, localRoot, cloudRoot):
     path=localPathToCloud(path,localRoot,cloudRoot)
-    return findParentID(token,path, cloudData)
+    return findParentID(path, cloudData)
 #
 # testData={
 #     ":id": 0,
