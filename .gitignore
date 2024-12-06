@@ -4,4 +4,5 @@ db/localData.json
 api/AKSK.txt
 api/Token.txt
 db/localData.json
+*/__pycache__/
 *.pyc
