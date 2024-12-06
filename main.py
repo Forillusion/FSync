@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
     v.cloudData =load(r"db\cloudData.json")
     v.localData =load(r"db\localData.json")
-    exit(0)
+    
     if v.cloudData == "":
         v.cloudData ={":id":0,"test":{":id":10767340}}
     else:
