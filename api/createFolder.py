@@ -13,7 +13,7 @@ verify=True
 # etag	string	必填	文件md5
 # size	number	必填	文件大小，单位为 byte 字节
 
-def createFolder(token, parentID, folderName):
+def createFolder(parentID, folderName):
     url=host+"/upload/v1/file/mkdir"
     headers = {
         "Authorization": "Bearer "+ getToken(),

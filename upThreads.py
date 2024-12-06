@@ -43,7 +43,7 @@ def preThread():
     def preDeleteFolder():
         code, dirID = getCloudFloderID(getToken(), current["path"],cloudData,localRoot, cloudRoot)
         if code == 0:
-            code = deleteFile(getToken(), dirID)
+            code = deleteFile(dirID)
 
         if code != 0:
             console(1, f"{current['fillName']} 删除云盘文件夹失败")
@@ -55,7 +55,7 @@ def preThread():
     def preDeleteFile():
         code,fileID = getCloudFileID(getToken(), current["path"],cloudData,localRoot, cloudRoot)
         if code==0:
-            code = deleteFile(getToken(), fileID)
+            code = deleteFile(fileID)
 
         if code != 0:
             console(1, f"{current['fillName']} 删除云盘文件失败")
@@ -77,8 +77,7 @@ def preThread():
         code,parentFileId = getParentID(getToken(),current["path"],cloudData,localRoot, cloudRoot)
         if code==0:
             current["parentFileId"]=parentFileId
-            code, preuploadID, reuse, sliceSize,fileID = createFile(getToken(), current["parentFileId"], fileName, md5,
-                                                                    size)
+            code, preuploadID, reuse, sliceSize,fileID = createFile(current["parentFileId"], fileName, md5, size)
 
         if code != 0:
             console(1, f"{current['fillName']} 创建文件失败")
@@ -101,7 +100,7 @@ def preThread():
                 slice["currentSlice"] = i + 1
                 slice["sliceMD5"] = getSliceMD5(current["path"], sliceSize, i + 1)
 
-                code, slice["URL"] = getUploadUrl(getToken(), current["preuploadID"], i + 1)
+                code, slice["URL"] = getUploadUrl(current["preuploadID"], i + 1)
                 if code != 0:
                     reUpQueue.put(current)
                     if i != 0:
@@ -229,12 +228,12 @@ def checkThread():
             current = checkQueue.get()
             console(3, f"获取到校验文件 {current['fillName']}")
 
-            code, completed, ifasync,fileID = uploadComplete(getToken(), current["preuploadID"])
+            code, completed, ifasync,fileID = uploadComplete(current["preuploadID"])
             if completed:
                 pass
             elif ifasync:
                 while code == 0 and not completed:
-                    code, completed,fileID = uploadAsyncResult(getToken(), current["preuploadID"])
+                    code, completed,fileID = uploadAsyncResult(current["preuploadID"])
                     sleep(0.5)
 
             if code == 0:

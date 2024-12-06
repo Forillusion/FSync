@@ -18,7 +18,7 @@ verify=True
 # etag	string	必填	文件md5
 # size	number	必填	文件大小，单位为 byte 字节
 
-def deleteFile(token, fileIDs):
+def deleteFile(fileIDs):
     url=host+"/api/v1/file/trash"
     headers = {
         "Authorization": "Bearer "+getToken(),

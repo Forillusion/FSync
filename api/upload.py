@@ -19,7 +19,7 @@ verify=True
 # etag	string	必填	文件md5
 # size	number	必填	文件大小，单位为 byte 字节
 
-def createFile(token, parentFileId, filename, etag, size):
+def createFile(parentFileId, filename, etag, size):
     url=host+"/upload/v1/file/create"
     headers = {
         "Authorization": "Bearer "+getToken(),
@@ -40,7 +40,7 @@ def createFile(token, parentFileId, filename, etag, size):
     return code,response.json()["data"]["preuploadID"],response.json()["data"]["reuse"],response.json()["data"]["sliceSize"],response.json()["data"]["fileID"] if response.json()["data"]["fileID"] else 0
 
 #列举已上传分片
-def getListUploadParts(token, preuploadID):
+def getListUploadParts(preuploadID):
     url=host+"/upload/v1/file/list_upload_parts"
     headers = {
         "Authorization": "Bearer "+getToken(),
@@ -58,7 +58,7 @@ def getListUploadParts(token, preuploadID):
     return code,response.json()["data"]["parts"]
 
 #获取上传地址
-def getUploadUrl(token, preuploadID,sliceNo=1):
+def getUploadUrl(preuploadID, sliceNo=1):
     url=host+"/upload/v1/file/get_upload_url"
     headers = {
         "Authorization": "Bearer "+getToken(),
@@ -116,7 +116,7 @@ def uploadFileSlice(url,filePath,sliceSize,sliceNo=1):
         return response.status_code
 
 #上传完毕
-def uploadComplete(token, preuploadID):
+def uploadComplete(preuploadID):
     url=host+"/upload/v1/file/upload_complete"
     headers = {
         "Authorization": "Bearer "+getToken(),
@@ -135,7 +135,7 @@ def uploadComplete(token, preuploadID):
 
 
 #异步轮询获取上传结果
-def uploadAsyncResult(token, preuploadID):
+def uploadAsyncResult(preuploadID):
     url=host+"/upload/v1/file/upload_async_result"
     headers = {
         "Authorization": "Bearer "+getToken(),
@@ -189,16 +189,16 @@ def upload(path,parentFileId):
         else:
             print(f"文件大小{size/1024/1024:.2f}MB")
 
-        preuploadID,reuse,sliceSize=createFile(token, parentFileId, fileName, MD5, size)
+        preuploadID,reuse,sliceSize= createFile(parentFileId, fileName, MD5, size)
         print("分片大小：",sliceSize/1024/1024,"MB")
 
         if reuse:
             print("秒传成功")
 
         elif size<=sliceSize:
-            upurl=getUploadUrl(token,preuploadID)
+            upurl= getUploadUrl(preuploadID)
             uploadFileSlice(upurl,file,sliceSize)
-            uploadComplete(token,preuploadID)
+            uploadComplete(preuploadID)
 
         else:
             totalSlice=math.ceil(size/sliceSize)
@@ -206,16 +206,16 @@ def upload(path,parentFileId):
 
             currentSlice=1
             while currentSlice<=totalSlice:
-                upurl=getUploadUrl(token,preuploadID,currentSlice)
+                upurl= getUploadUrl(preuploadID, currentSlice)
                 status=uploadFileSlice(upurl,file,sliceSize,currentSlice)
                 if status==200:
                     currentSlice+=1
 
-            completed,ifasync=uploadComplete(token,preuploadID)
+            completed,ifasync= uploadComplete(preuploadID)
             if completed:
                 print("\033[32m上传完成\033[0m")
             elif ifasync:
                 while not completed:
                     time.sleep(2)
-                    completed=uploadAsyncResult(token,preuploadID)
+                    completed= uploadAsyncResult(preuploadID)
                 print("\033[32m上传完成\033[0m")

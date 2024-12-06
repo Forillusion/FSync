@@ -11,7 +11,7 @@ def findFloaderID(token,cloudPath, data):
     for folder in folders:
         # print("folder",folder)
         if folder not in current:
-            code,dirID=createFolder(token,current[":id"],folder)
+            code,dirID= createFolder(current[":id"], folder)
             if code!=0:
                 return code,0
             current[folder]={":id":dirID}
@@ -39,7 +39,7 @@ def findFileID(token, cloudPath, data):
     for folder in folders:
         # print("folder",folder)
         if folder not in current:
-            code,dirID=createFolder(token,current[":id"],folder)
+            code,dirID= createFolder(current[":id"], folder)
             if code!=0:
                 return code,0
             current[folder]={":id":dirID}
@@ -65,7 +65,7 @@ def findParentID(token, cloudPath, data):
     code=0
     for folder in folders:
         if folder not in current:
-            code,dirID=createFolder(token,current[":id"],folder)
+            code,dirID= createFolder(current[":id"], folder)
             if code!=0:
                 return code,0
             current[folder]={":id":dirID}
