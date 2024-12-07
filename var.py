@@ -31,6 +31,8 @@ class Singleton(metaclass=SingletonMeta): # 使用 SingletonMeta 作为元类来
     upSteam = multiprocessing.Queue()
     controlSteam = multiprocessing.Queue()
     returnSteam = multiprocessing.Queue()
+
+    timeKey = ":mt"
     def __init__(self):
         pass
 v=Singleton()

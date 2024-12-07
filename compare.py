@@ -1,9 +1,12 @@
+from var import v
+
+
 def recursionCompareData(localData, scanData, path=''):
     def recursionCreateFile(scanData, path):
         createQueue=[]
         for key in scanData:
-            if ":time" in scanData[key]:
-                createQueue.append((path +'\\' + key, scanData[key][":time"]))
+            if v.timeKey in scanData[key]:
+                createQueue.append((path +'\\' + key, scanData[key][v.timeKey]))
             else:
                 createQueue.append((path+'\\'+key,0))
                 subCreate=recursionCreateFile(scanData[key], path + '\\' + key)
@@ -16,15 +19,15 @@ def recursionCompareData(localData, scanData, path=''):
     deleteQueue = []
     for key in localData:
         if key not in scanData:
-            if ":time" in localData[key]:
+            if v.timeKey in localData[key]:
                 deleteQueue.append((path + '\\' + key,-1))
             else:
                 deleteQueue.append((path + '\\' + key,0))
 
         else:
-            if ":time" in localData[key]:
-                if localData[key][":time"] != scanData[key][":time"]:
-                    updateQueue.append((path + "\\" + key,scanData[key][":time"]))
+            if v.timeKey in localData[key]:
+                if localData[key][v.timeKey] != scanData[key][v.timeKey]:
+                    updateQueue.append((path + "\\" + key,scanData[key][v.timeKey]))
             else:
                 subCreat, subUpdate, subDelete = recursionCompareData(localData[key], scanData[key], path + '\\' + key)
                 createQueue.extend(subCreat)
@@ -33,12 +36,12 @@ def recursionCompareData(localData, scanData, path=''):
 
     for key in scanData:
         if key not in localData:
-            if ":time" not in scanData[key]:
+            if v.timeKey not in scanData[key]:
                 createQueue.append((path + "\\" + key,0))
                 subCreat = recursionCreateFile(scanData[key], path + "\\" + key)
                 createQueue.extend(subCreat)
             else:
-                createQueue.append((path + "\\" + key,scanData[key][":time"]))
+                createQueue.append((path + "\\" + key,scanData[key][v.timeKey]))
     return createQueue, updateQueue, deleteQueue
 
 def compareData(localData, scanData, localRoot):

@@ -10,7 +10,7 @@ from time import sleep
 
 from compare import compareData, generateQueue
 from scanLocalPath import scanLocalPath
-from database import load, save
+from database import load, save, loadCloudData
 from upProcess import upProcess
 import upThreads as up
 import threading
@@ -59,17 +59,19 @@ def startUp():
 if __name__ == '__main__':
     multiprocessing.freeze_support()
 
-    v.cloudData =load(r"db\cloudData.json")
-    v.localData =load(r"db\localData.json")
+    # v.cloudData =load(r"db\cloudData.json")
+    # v.localData =load(r"db\localData.json")
 
-    if v.cloudData == "":
-        v.cloudData ={":id":0,"test":{":id":10767340}}
-    else:
-        v.cloudData =json.loads(v.cloudData)
-    if v.localData == "":
-        v.localData ={"E:":{"test":{}}}
-    else:
-        v.localData =json.loads(v.localData)
+    # if v.cloudData == "":
+        # v.cloudData ={":id":0,"test":{":id":10767340}}
+    # else:
+    #     v.cloudData =json.loads(v.cloudData)
+    # if v.localData == "":
+    #     v.localData ={"E:":{"test":{}}}
+    # else:
+    #     v.localData =json.loads(v.localData)
+    loadCloudData()
+
     v.scanData=scanLocalPath(v.localRoot)
 
     print("云盘数据库：",json.dumps(v.cloudData))
