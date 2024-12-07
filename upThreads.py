@@ -12,6 +12,7 @@ from tools import localPathToCloud
 from api.upload import uploadComplete, uploadAsyncResult, createFile, getUploadUrl
 from var import v
 
+
 def preThread():
     # upQueue, sliceQueue, reUpQueue, checkQueue, finishQueue, failQueue, localRoot, cloudRoot, localData, cloudData=
 
@@ -53,8 +54,8 @@ def preThread():
         finishQueue.append(current)
 
     def preDeleteFile():
-        code,fileID = findFileID(current["path"])
-        if code==0:
+        code, fileID = findFileID(current["path"])
+        if code == 0:
             code = deleteFile(fileID)
 
         if code != 0:
@@ -74,10 +75,10 @@ def preThread():
         md5 = getMD5(current["path"], 2 ** 22)  # 2**22 = 4MB
         fileName = os.path.basename(current["path"])
 
-        code,parentFileId = findParentID(current["path"])
-        if code==0:
-            current["parentFileId"]=parentFileId
-            code, preuploadID, reuse, sliceSize,fileID = createFile(current["parentFileId"], fileName, md5, size)
+        code, parentFileId = findParentID(current["path"])
+        if code == 0:
+            current["parentFileId"] = parentFileId
+            code, preuploadID, reuse, sliceSize, fileID = createFile(current["parentFileId"], fileName, md5, size)
 
         if code != 0:
             console(1, f"{current['fillName']} 创建文件失败")
@@ -228,12 +229,12 @@ def checkThread():
             current = checkQueue.get()
             console(3, f"获取到校验文件 {current['fillName']}")
 
-            code, completed, ifasync,fileID = uploadComplete(current["preuploadID"])
+            code, completed, ifasync, fileID = uploadComplete(current["preuploadID"])
             if completed:
                 pass
             elif ifasync:
                 while code == 0 and not completed:
-                    code, completed,fileID = uploadAsyncResult(current["preuploadID"])
+                    code, completed, fileID = uploadAsyncResult(current["preuploadID"])
                     sleep(0.5)
 
             if code == 0:
@@ -278,5 +279,3 @@ def console(index, msg):
     l = int((index - 1) * cols * (1 / 3))
     print(" " * l, end="")
     print(msg)
-
-

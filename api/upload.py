@@ -10,8 +10,10 @@ from dataWithCallback import DataWithCallback
 from tools import tryRequests
 
 host = "https://open-api.123pan.com"
-verify=True
-#创建文件
+verify = True
+
+
+# 创建文件
 # Body 参数
 # 名称	类型	是否必填	说明
 # parentFileID	number	必填	父目录id，上传到根目录时填写 0
@@ -20,10 +22,10 @@ verify=True
 # size	number	必填	文件大小，单位为 byte 字节
 
 def createFile(parentFileId, filename, etag, size):
-    url=host+"/upload/v1/file/create"
+    url = host + "/upload/v1/file/create"
     headers = {
-        "Authorization": "Bearer "+getToken(),
-        "Platform":"open_platform"
+        "Authorization": "Bearer " + getToken(),
+        "Platform": "open_platform"
     }
     data = {
         "parentFileId": parentFileId,
@@ -31,56 +33,60 @@ def createFile(parentFileId, filename, etag, size):
         "etag": etag,
         "size": size
     }
-    code,response= tryRequests(requests.post, url=url, headers=headers, data=data, verify=verify)
+    code, response = tryRequests(requests.post, url=url, headers=headers, data=data, verify=verify)
     # response = requests.post(url, headers=headers, data=data,verify=verify)
 
     if code != 0:
-        print("getFileCreate",response.json())
-        return code,"",False,0,0
-    return code,response.json()["data"]["preuploadID"],response.json()["data"]["reuse"],response.json()["data"]["sliceSize"],response.json()["data"]["fileID"] if response.json()["data"]["fileID"] else 0
+        print("getFileCreate", response.json())
+        return code, "", False, 0, 0
+    return code, response.json()["data"]["preuploadID"], response.json()["data"]["reuse"], response.json()["data"][
+        "sliceSize"], response.json()["data"]["fileID"] if response.json()["data"]["fileID"] else 0
 
-#列举已上传分片
+
+# 列举已上传分片
 def getListUploadParts(preuploadID):
-    url=host+"/upload/v1/file/list_upload_parts"
+    url = host + "/upload/v1/file/list_upload_parts"
     headers = {
-        "Authorization": "Bearer "+getToken(),
-        "Platform":"open_platform"
+        "Authorization": "Bearer " + getToken(),
+        "Platform": "open_platform"
     }
     data = {
         "preuploadID": preuploadID
     }
-    code,response= tryRequests(requests.post, url=url, headers=headers, data=data, verify=verify)
+    code, response = tryRequests(requests.post, url=url, headers=headers, data=data, verify=verify)
     # response = requests.post(url, headers=headers, data=data,verify=verify)
 
     if code != 0:
-        print("getListUploadParts",response.json())
-        return code,""
-    return code,response.json()["data"]["parts"]
+        print("getListUploadParts", response.json())
+        return code, ""
+    return code, response.json()["data"]["parts"]
 
-#获取上传地址
+
+# 获取上传地址
 def getUploadUrl(preuploadID, sliceNo=1):
-    url=host+"/upload/v1/file/get_upload_url"
+    url = host + "/upload/v1/file/get_upload_url"
     headers = {
-        "Authorization": "Bearer "+getToken(),
-        "Platform":"open_platform"
+        "Authorization": "Bearer " + getToken(),
+        "Platform": "open_platform"
     }
     data = {
         "preuploadID": preuploadID,
         "sliceNo": sliceNo
     }
-    code,response= tryRequests(requests.post, url=url, headers=headers, data=data, verify=verify)
+    code, response = tryRequests(requests.post, url=url, headers=headers, data=data, verify=verify)
     # response = requests.post(url, headers=headers, data=data,verify=verify)
 
     if code != 0:
-        print("getUploadUrl",response.json())
-        return code,""
-    return code,response.json()["data"]["presignedURL"]
+        print("getUploadUrl", response.json())
+        return code, ""
+    return code, response.json()["data"]["presignedURL"]
 
-#上传文件分片
-def uploadFileSlice(url,filePath,sliceSize,sliceNo=1):
-    data=None
+
+# 上传文件分片
+def uploadFileSlice(url, filePath, sliceSize, sliceNo=1):
+    data = None
     with open(filePath, 'rb') as f:
-        f.seek((sliceNo-1)*sliceSize)
+        f.seek((sliceNo - 1) * sliceSize)
         x = f.read(sliceSize)
         data = DataWithCallback(x)
 
@@ -92,20 +98,20 @@ def uploadFileSlice(url,filePath,sliceSize,sliceNo=1):
         "Content-Length": str(data.len),
     }
 
-    MB=data.len/1024/1024
-    print(f"上传分片{sliceNo}  {MB:.2f}MB",end="  \n")
-    startTime=time.time()
+    MB = data.len / 1024 / 1024
+    print(f"上传分片{sliceNo}  {MB:.2f}MB", end="  \n")
+    startTime = time.time()
 
     # code,response=tryRequests(requests.put,url=url, headers=header,data=data,verify=verify)
-    response = requests.put(url, headers=header,data=data,verify=verify)
+    response = requests.put(url, headers=header, data=data, verify=verify)
     print()
 
     if response.status_code == 200:
-        print(f"\033[32m分片{sliceNo}上传成功\033[0m",end="  \t")
-        endTime=time.time()
-        print(f"用时：{(endTime-startTime):.2f}s  \t速度：{MB/(endTime-startTime):.2f} MB/S",end="  \t")
-        md5=data.getMD5()
-        if (response.headers["ETag"].replace('"','')==md5):
+        print(f"\033[32m分片{sliceNo}上传成功\033[0m", end="  \t")
+        endTime = time.time()
+        print(f"用时：{(endTime - startTime):.2f}s  \t速度：{MB / (endTime - startTime):.2f} MB/S", end="  \t")
+        md5 = data.getMD5()
+        if (response.headers["ETag"].replace('"', '') == md5):
             print(f"MD5验证：\033[32mTrue\033[0m")
             return 200
         else:
@@ -115,41 +121,43 @@ def uploadFileSlice(url,filePath,sliceSize,sliceNo=1):
         print(f"\033[31m上传失败\033[0m")
         return response.status_code
 
-#上传完毕
+
+# 上传完毕
 def uploadComplete(preuploadID):
-    url=host+"/upload/v1/file/upload_complete"
+    url = host + "/upload/v1/file/upload_complete"
     headers = {
-        "Authorization": "Bearer "+getToken(),
-        "Platform":"open_platform"
+        "Authorization": "Bearer " + getToken(),
+        "Platform": "open_platform"
     }
     data = {
         "preuploadID": preuploadID
     }
-    code,response= tryRequests(requests.post, url=url, headers=headers, data=data, verify=verify)
+    code, response = tryRequests(requests.post, url=url, headers=headers, data=data, verify=verify)
     # response = requests.post(url, headers=headers, data=data,verify=verify)
 
     if code != 0:
-        print("uploadComplete",response.json())
-        return code,True,False,0
-    return code,response.json()["data"]["completed"],response.json()["data"]["async"],response.json()["data"]["fileID"]
+        print("uploadComplete", response.json())
+        return code, True, False, 0
+    return code, response.json()["data"]["completed"], response.json()["data"]["async"], response.json()["data"][
+        "fileID"]
 
 
-#异步轮询获取上传结果
+# 异步轮询获取上传结果
 def uploadAsyncResult(preuploadID):
-    url=host+"/upload/v1/file/upload_async_result"
+    url = host + "/upload/v1/file/upload_async_result"
     headers = {
-        "Authorization": "Bearer "+getToken(),
-        "Platform":"open_platform"
+        "Authorization": "Bearer " + getToken(),
+        "Platform": "open_platform"
     }
     data = {
         "preuploadID": preuploadID
     }
-    code,response= tryRequests(requests.post, url=url, headers=headers, data=data, verify=verify)
+    code, response = tryRequests(requests.post, url=url, headers=headers, data=data, verify=verify)
     # response = requests.post(url, headers=headers, data=data,verify=verify)
-    if code!=0:
-        print("uploadAsyncResult",response.json())
-        return code,True,0
-    return code,response.json()["data"]["completed"],response.json()["data"]["fileID"]
+    if code != 0:
+        print("uploadAsyncResult", response.json())
+        return code, True, 0
+    return code, response.json()["data"]["completed"], response.json()["data"]["fileID"]
 
 # #计算文件md5
 # def getMD5(file):

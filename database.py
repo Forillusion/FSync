@@ -8,69 +8,74 @@ from var import v
 
 def load(path):
     # 如果文件夹不存在，创建文件夹
-    folders=splitPath(path)
-    current=""
+    folders = splitPath(path)
+    current = ""
     for folder in folders[:-1]:
-        current+=folder+"\\"
+        current += folder + "\\"
         if not os.path.exists(current):
             os.mkdir(current)
 
     if not os.path.exists(path):
         save(path)
 
-    with open(path,"r") as f:
+    with open(path, "r") as f:
         return f.read()
 
+
 def loadCloudData():
-    data=load(r"db\cloudData.json")
+    data = load(r"db\cloudData.json")
     if data == "":
-        data = '{":id":0}'
-    v.cloudData=json.loads(data)
+        data = '{"' + v.idKey + '":0}'
+    v.cloudData = json.loads(data)
     getCloudListToData(v.cloudRoot)
 
-# def loadLocalData():
-#     data=load(r"db\localData.json")
-#     if data == "":
-#         data = '{"E:":{}}'
-#     v.localData=json.dumps(data)
 
-def save(path,data):
-    with open(path,"w") as f:
-        f.write(json.dumps(data))
+def loadLocalData():
+    data = load(r"db\localData.json")
+    if data == "":
+        data = '{}'
+    v.localData = json.loads(data)
+
+
+def save(path, data):
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(json.dumps(data, ensure_ascii=False))
+
 
 def updateCloudData(path, status, id=0, autoSave=True):
-    folders=splitPath(path)
-    lens=len(folders)
-    i=0
+    folders = splitPath(path)
+    lens = len(folders)
+    i = 0
     current = v.cloudData
     if status == "create folder" or status == "create file":
         for folder in folders:
-            i+=1
+            i += 1
             if folder not in current:
                 current[folder] = {}
             current = current[folder]
-        current[":id"] = id
+        current[v.idKey] = id
 
     if status == "delete folder" or status == "delete file":
         for folder in folders:
-            i+=1
+            i += 1
             if folder not in current:
                 raise Exception(f"Cloud database error: folder {folder} not found,path:{path}")
-            if i<lens:
+            if i < lens:
                 current = current[folder]
         del current[folders[-1]]
 
     if autoSave:
         save("db/cloudData.json", v.cloudData)
 
+
 def updataLocalData(path, status, time=0, autoSave=True):
-    folders=splitPath(path)
-    lens=len(folders)
-    i=0
+    folders = splitPath(path)
+    lens = len(folders)
+    i = 0
     current = v.localData
     if status == "create folder" or status == "create file":
         for folder in folders:
-            i+=1
+            i += 1
             if folder not in current:
                 current[folder] = {}
             current = current[folder]
@@ -79,19 +84,21 @@ def updataLocalData(path, status, time=0, autoSave=True):
 
     if status == "delete folder" or status == "delete file":
         for folder in folders:
-            i+=1
+            i += 1
             if folder not in current:
                 raise Exception(f"local database error: folder {folder} not found,path:{path}")
-            if i<lens:
+            if i < lens:
                 current = current[folder]
         del current[folders[-1]]
 
     if autoSave:
         save("db/localData.json", v.localData)
 
+
 def updataBothData(localPath, status, time=0, id=0, autoSave=True):
     updataLocalData(localPath, status, time, autoSave)
     updateCloudData(localPathToCloud(localPath), status, id, autoSave)
+
 
 # testData =  {'E:': {'test': {'d1': {'d1t1.txt': {':time': 1733388906}}, 'd2': {'d2t1.txt': {':time': 1733388906}}, 't1': {}, 't1.txt': {':time': 1733388906}, 't2.txt': {':time': 1733388906}}}}
 # updataLocalData(testData,r"E:\test\d1\d1t1.txt","delete file",133)
@@ -119,15 +126,15 @@ def updataBothData(localPath, status, time=0, id=0, autoSave=True):
 # }
 
 def getCloudListToData(path):
-    folders=splitPath(path)
+    folders = splitPath(path)
     current = v.cloudData
     for folder in folders:
         if folder not in current:
-            code, data = getAllFileListOld(current[":id"])
-            if code==0:
+            code, data = getAllFileListOld(current[v.idKey])
+            if code == 0:
                 for x in data:
                     if x["filename"] not in current:
-                        current[x["filename"]] = {":id":x["fileID"]}
+                        current[x["filename"]] = {v.idKey: x["fileID"]}
                         # print(x["filename"])
             else:
                 return code
@@ -137,14 +144,15 @@ def getCloudListToData(path):
 
 
 def getLocalListToData(path):
-    folders=splitPath(path)
+    folders = splitPath(path)
     current = v.localData
     for folder in folders:
         if folder not in current:
             # data=scanLocalPath
             pass
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     loadCloudData()
     print(v.cloudData)
 

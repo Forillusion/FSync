@@ -27,10 +27,10 @@ def deleteFile(fileIDs):
     data = {
         "FileIDs": fileIDs
     }
-    code,response = tryRequests(requests.post, url=url, headers=headers, data=data, verify=verify)
+    code, response = tryRequests(requests.post, url=url, headers=headers, data=data, verify=verify)
     # response = requests.post(url, headers=headers, data=data,verify=verify)
 
     if code != 0:
-        print("deleteFile",response.json())
+        print("deleteFile", response.json())
         return code
     return code

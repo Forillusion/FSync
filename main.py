@@ -10,12 +10,13 @@ from time import sleep
 
 from compare import compareData, generateQueue
 from scanLocalPath import scanLocalPath
-from database import load, save, loadCloudData
+from database import load, save, loadCloudData, loadLocalData
 from upProcess import upProcess
 import upThreads as up
 import threading
 import multiprocessing
 from var import v
+
 
 # 1.读取文件
 # 2.获取文件大小
@@ -63,7 +64,7 @@ if __name__ == '__main__':
     # v.localData =load(r"db\localData.json")
 
     # if v.cloudData == "":
-        # v.cloudData ={":id":0,"test":{":id":10767340}}
+    # v.cloudData ={":id":0,"test":{":id":10767340}}
     # else:
     #     v.cloudData =json.loads(v.cloudData)
     # if v.localData == "":
@@ -71,15 +72,16 @@ if __name__ == '__main__':
     # else:
     #     v.localData =json.loads(v.localData)
     loadCloudData()
+    loadLocalData()
 
-    v.scanData=scanLocalPath(v.localRoot)
+    v.scanData = scanLocalPath(v.localRoot)
 
-    print("云盘数据库：",json.dumps(v.cloudData))
-    print("本地数据库：",json.dumps(v.localData))
-    print("扫描数据库：",json.dumps(v.scanData))
+    print("云盘数据库：", json.dumps(v.cloudData))
+    print("本地数据库：", json.dumps(v.localData))
+    print("扫描数据库：", json.dumps(v.scanData))
 
-    A,B,C=compareData(v.localData, v.scanData, v.localRoot)
-    v.upQueue=generateQueue(A,B,C)
+    A, B, C = compareData(v.localData, v.scanData, v.localRoot)
+    v.upQueue = generateQueue(A, B, C)
     v.upQueue.reverse()
 
     print("需要创建的文件:")

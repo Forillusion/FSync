@@ -7,13 +7,14 @@ from api.getToken import getToken
 from tools import tryRequests
 
 host = "https://open-api.123pan.com"
-verify=True
+verify = True
+
 
 def getFileList(parentFileId=0):
-    url=host+"/api/v2/file/list"
+    url = host + "/api/v2/file/list"
     headers = {
-        "Authorization": "Bearer "+getToken(),
-        "Platform":"open_platform"
+        "Authorization": "Bearer " + getToken(),
+        "Platform": "open_platform"
     }
     data = {
         "parentFileId": parentFileId,
@@ -24,11 +25,11 @@ def getFileList(parentFileId=0):
     return response.json()["data"]
 
 
-def getFileListOld(parentFileId=0,page=1,limit=100):
-    url=host+"/api/v1/file/list"
+def getFileListOld(parentFileId=0, page=1, limit=100):
+    url = host + "/api/v1/file/list"
     headers = {
-        "Authorization": "Bearer "+getToken(),
-        "Platform":"open_platform"
+        "Authorization": "Bearer " + getToken(),
+        "Platform": "open_platform"
     }
     data = {
         "parentFileId": parentFileId,
@@ -39,35 +40,35 @@ def getFileListOld(parentFileId=0,page=1,limit=100):
         "trashed": False
     }
 
-    code,response = tryRequests(requests.get, url=url, headers=headers, params=data, verify=verify)
+    code, response = tryRequests(requests.get, url=url, headers=headers, params=data, verify=verify)
     # response = requests.get(url, headers=headers, params=data)
 
     if code != 0:
-        print("getFileListOld",response.json())
-        return code,{}
-    return code,response.json()["data"]
+        print("getFileListOld", response.json())
+        return code, {}
+    return code, response.json()["data"]
+
 
 def getAllFileListOld(parentFileId=0):
-    list=[]
-    code,data=getFileListOld(parentFileId)
-    if code==0:
-        total=data["total"]
-        list=data["fileList"]
+    list = []
+    code, data = getFileListOld(parentFileId)
+    if code == 0:
+        total = data["total"]
+        list = data["fileList"]
 
-        for i in range(2,math.ceil(total/100)+1):
+        for i in range(2, math.ceil(total / 100) + 1):
             sleep(0.8)
-            code,data=getFileListOld(parentFileId,i)
-            if code!=0:
+            code, data = getFileListOld(parentFileId, i)
+            if code != 0:
                 break
-            list+=data["fileList"]
+            list += data["fileList"]
 
-    if code!=0:
-        return code,[]
-    return code,list
-
+    if code != 0:
+        return code, []
+    return code, list
 
 
 if __name__ == "__main__":
-    code,data=getAllFileListOld(0)
-    with open("list.txt","w") as f:
+    code, data = getAllFileListOld(0)
+    with open("list.txt", "w") as f:
         f.write(json.dumps(data))

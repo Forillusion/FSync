@@ -14,14 +14,14 @@ def findFloaderID(path):
     for folder in folders:
         # print("folder",folder)
         if folder not in current:
-            code,dirID= createFolder(current[":id"], folder)
+            code,dirID= createFolder(current[v.idKey], folder)
             if code!=0:
                 return code,0
-            current[folder]={":id":dirID}
+            current[folder]={v.idKey:dirID}
             sleep(0.5)
         current=current[folder]
 
-    return code,current[":id"]
+    return code,current[v.idKey]
 
 
 # def getCloudFloderID(path):
@@ -45,7 +45,7 @@ def findFileID(path):
             return -2,0
         current=current[folder]
 
-    return code,current[":id"]
+    return code,current[v.idKey]
 
 # def findFileID(path):
 #     # 给出一个文件路径，返回文件的id，会创建文件夹并写入数据库，但不会创建文件，如果不存在则返回-2
@@ -88,14 +88,14 @@ def findParentID(path):
     code=0
     for folder in folders:
         if folder not in current:
-            code,dirID= createFolder(current[":id"], folder)
+            code,dirID= createFolder(current[v.idKey], folder)
             if code!=0:
                 return code,0
-            current[folder]={":id":dirID}
+            current[folder]={v.idKey:dirID}
             sleep(0.5)
         current=current[folder]
 
-    return code,current[":id"]
+    return code,current[v.idKey]
 
 # def getParentID(path):
 #     path= localPathToCloud(path)
