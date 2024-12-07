@@ -40,14 +40,3 @@ class Singleton(metaclass=SingletonMeta):  # 使用 SingletonMeta 作为元类�
 
 
 v = Singleton()
-# 测试单例模式
-if __name__ == "__main__":
-    s1 = Singleton()
-    s2 = Singleton()
-
-    # print(s1.value)  # 输出: first instance
-    # print(s2.value)  # 输出: first instance
-    # print(s1 is s2)  # 输出: True，表示 s1 和 s2 是同一个实例
-    print(s1.localRoot)
-    s1.localRoot = "1234"
-    print(s2.localRoot)
