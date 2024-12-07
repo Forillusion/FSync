@@ -2,7 +2,7 @@ import json
 import os
 
 from api.fileList import getAllFileListOld
-from tools import splitPath
+from tools import splitPath, localPathToCloud
 from var import v
 
 
@@ -38,11 +38,11 @@ def save(path,data):
     with open(path,"w") as f:
         f.write(json.dumps(data))
 
-def updateCloudData(data, path, status, id=0, autoSave=True):
+def updateCloudData(path, status, id=0, autoSave=True):
     folders=splitPath(path)
     lens=len(folders)
     i=0
-    current = data
+    current = v.cloudData
     if status == "create folder" or status == "create file":
         for folder in folders:
             i+=1
@@ -61,13 +61,13 @@ def updateCloudData(data, path, status, id=0, autoSave=True):
         del current[folders[-1]]
 
     if autoSave:
-        save("db/cloudData.json", data)
+        save("db/cloudData.json", v.cloudData)
 
-def updataLocalData(data, path, status, time=0, autoSave=True):
+def updataLocalData(path, status, time=0, autoSave=True):
     folders=splitPath(path)
     lens=len(folders)
     i=0
-    current = data
+    current = v.localData
     if status == "create folder" or status == "create file":
         for folder in folders:
             i+=1
@@ -87,11 +87,11 @@ def updataLocalData(data, path, status, time=0, autoSave=True):
         del current[folders[-1]]
 
     if autoSave:
-        save("db/localData.json", data)
+        save("db/localData.json", v.localData)
 
-def updataBothData(localData, cloudData,localPath,cloudPath,status,time=0,id=0,autoSave=True):
-    updataLocalData(localData,localPath,status,time,autoSave)
-    updateCloudData(cloudData,cloudPath,status,id,autoSave)
+def updataBothData(localPath, status, time=0, id=0, autoSave=True):
+    updataLocalData(localPath, status, time, autoSave)
+    updateCloudData(localPathToCloud(localPath), status, id, autoSave)
 
 # testData =  {'E:': {'test': {'d1': {'d1t1.txt': {':time': 1733388906}}, 'd2': {'d2t1.txt': {':time': 1733388906}}, 't1': {}, 't1.txt': {':time': 1733388906}, 't2.txt': {':time': 1733388906}}}}
 # updataLocalData(testData,r"E:\test\d1\d1t1.txt","delete file",133)

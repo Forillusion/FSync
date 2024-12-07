@@ -37,7 +37,7 @@ def preThread():
             reUpQueue.put(current)
 
         console(1, f"{current['fillName']} 文件夹创建成功")
-        updataBothData(localData, cloudData, current["path"], localPathToCloud(current["path"]), "create folder", 0, dirID)
+        updataBothData(current["path"], "create folder", 0, dirID)
         finishQueue.append(current)
 
     def preDeleteFolder():
@@ -49,7 +49,7 @@ def preThread():
             console(1, f"{current['fillName']} 删除云盘文件夹失败")
             reUpQueue.put(current)
         console(1, f"{current['fillName']} 删除云盘文件夹成功")
-        updataBothData(localData, cloudData, current["path"], localPathToCloud(current["path"]), "delete folder")
+        updataBothData(current["path"], "delete folder")
         finishQueue.append(current)
 
     def preDeleteFile():
@@ -62,7 +62,7 @@ def preThread():
             reUpQueue.put(current)
 
         console(1, f"{current['fillName']} 删除云盘文件成功")
-        updataBothData(localData, cloudData, current["path"], localPathToCloud(current["path"]), "delete file")
+        updataBothData(current["path"], "delete file")
         sleep(0.5)
         if current["status"] == "update file":
             current["status"] = "create file"
@@ -86,7 +86,7 @@ def preThread():
 
         current["reuse"] = reuse
         if reuse:
-            updataBothData(localData, cloudData, current["path"], localPathToCloud(current["path"]), "create file", current["time"], fileID)
+            updataBothData(current["path"], "create file", current["time"], fileID)
             console(1, f"\033[32m{current["fillName"]} 秒传成功\033[0m")
             finishQueue.append(current)
             sleep(0.5)
@@ -237,7 +237,7 @@ def checkThread():
                     sleep(0.5)
 
             if code == 0:
-                updataBothData(localData, cloudData, current["path"], localPathToCloud(current["path"]), "create file", current["time"], fileID)
+                updataBothData(current["path"], "create file", current["time"], fileID)
                 finishQueue.append(current)
                 console(3, f"\033[32m{current["fillName"]}上传完成\033[0m")
             else:
