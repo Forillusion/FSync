@@ -92,7 +92,7 @@ def createTestTask():
         "nextRunTime": 0,
         "logs": []
     })
-    v.currentTask=v.taskList[0]
+    v.cTask=v.taskList[0]
 
 def startTask():
     v.scanData = scanLocalPath(v.localRoot)
@@ -143,6 +143,7 @@ if __name__ == '__main__':
 
     startTask()
 
+    print(v.totalStatus)
 
 # 线程1 ： 从队列中取出文件，请求创建文件，获取分片上传地址
 # 线程3 ： 发送文件分片，等待上传完成，记录成功或失败次数

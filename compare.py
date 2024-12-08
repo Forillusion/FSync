@@ -1,47 +1,62 @@
+import os.path
+
 from tools import splitPath
 from var import v
 
 
 def recursionCompareData(localData, scanData, path=''):
-    def recursionCreateFile(scanData, path):
-        createQueue = []
-        for key in scanData:
-            if v.timeKey in scanData[key]:
-                createQueue.append((path + '\\' + key, scanData[key][v.timeKey]))
-            else:
-                createQueue.append((path + '\\' + key, 0))
-                subCreate = recursionCreateFile(scanData[key], path + '\\' + key)
-                createQueue.extend(subCreate)
-        return createQueue
-
     createQueue = []
     updateQueue = []
     deleteQueue = []
-    for key in localData:
-        if key not in scanData:
-            if v.timeKey in localData[key]:
+
+    def recursionCreateFile(scanData, path):
+        createQueue = []
+        for key in scanData:  # 遍历扫描数据库，处理扫描数据库有而本地数据库没有的文件（创建）
+            if v.timeKey in scanData[key]:  # 文件
+                createQueue.append((path + '\\' + key, scanData[key][v.timeKey]))
+                v.totalStatus["createFiles"] += 1
+                v.totalStatus["uploadSize"] += os.path.getsize(path + '\\' + key)
+            else:   # 文件夹
+                createQueue.append((path + '\\' + key, 0))
+                v.totalStatus["createFolder"] += 1
+                subCreate = recursionCreateFile(scanData[key], path + '\\' + key) # 递归扫描子文件夹
+                createQueue.extend(subCreate)
+        return createQueue
+
+    for key in localData:  # 遍历本地数据库，处理本地数据库有而扫描数据库没有的文件（删除），以及本地数据库和扫描数据库的文件时间戳不同的文件（更新）
+        if key not in scanData:  # 如果本地数据库的key不在扫描数据库中
+            if v.timeKey in localData[key]:  # 文件
                 deleteQueue.append((path + '\\' + key, -1))
-            else:
+                v.totalStatus["deleteFiles"] += 1
+            else:  # 文件夹
                 deleteQueue.append((path + '\\' + key, 0))
+                v.totalStatus["deleteFolder"] += 1
 
         else:
-            if v.timeKey in localData[key]:
-                if localData[key][v.timeKey] != scanData[key][v.timeKey]:
+            if v.timeKey in localData[key]:  # 文件
+                if localData[key][v.timeKey] != scanData[key][v.timeKey]:  # 本地文件和扫描文件的时间戳不同
                     updateQueue.append((path + "\\" + key, scanData[key][v.timeKey]))
+                    v.totalStatus["updateFiles"] += 1
+                    v.totalStatus["uploadSize"] += os.path.getsize(path + '\\' + key)
             else:
-                subCreat, subUpdate, subDelete = recursionCompareData(localData[key], scanData[key], path + '\\' + key)
+                subCreat, subUpdate, subDelete = recursionCompareData(localData[key], scanData[key],
+                                                                      path + '\\' + key)  # 递归扫描子文件夹
                 createQueue.extend(subCreat)
                 updateQueue.extend(subUpdate)
                 deleteQueue.extend(subDelete)
 
-    for key in scanData:
+    for key in scanData:  # 遍历扫描数据库，处理扫描数据库有而本地数据库没有的文件（创建）
         if key not in localData:
-            if v.timeKey not in scanData[key]:
-                createQueue.append((path + "\\" + key, 0))
-                subCreat = recursionCreateFile(scanData[key], path + "\\" + key)
-                createQueue.extend(subCreat)
-            else:
+            if v.timeKey in scanData[key]:  # 文件
                 createQueue.append((path + "\\" + key, scanData[key][v.timeKey]))
+                v.totalStatus["createFiles"] += 1
+                v.totalStatus["uploadSize"] += os.path.getsize(path + '\\' + key)
+            else:   # 文件夹
+                createQueue.append((path + "\\" + key, 0))
+                v.totalStatus["createFolder"] += 1
+                subCreat = recursionCreateFile(scanData[key], path + "\\" + key)  # 递归扫描子文件夹
+                createQueue.extend(subCreat)
+
     return createQueue, updateQueue, deleteQueue
 
 
