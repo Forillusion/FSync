@@ -24,17 +24,19 @@ def recursionCompareData(localData, scanData, path=''):
         return createQueue
 
     for key in localData:  # 遍历本地数据库，处理本地数据库有而扫描数据库没有的文件（删除），以及本地数据库和扫描数据库的文件时间戳不同的文件（更新）
-        if key not in scanData:  # 如果本地数据库的key不在扫描数据库中
-            if v.timeKey in localData[key]:  # 文件
-                deleteQueue.append((path + '\\' + key, -1))
-                v.totalStatus["deleteFiles"] += 1
-            else:  # 文件夹
-                deleteQueue.append((path + '\\' + key, 0))
-                v.totalStatus["deleteFolder"] += 1
+
+        if key not in scanData:  # 如果本地数据库的key不在扫描数据库中（删除）
+            if v.cTask["deleteCloudFile"]:  # 根据任务设置，是否删除云盘文件
+                if v.timeKey in localData[key]:  # 文件
+                    deleteQueue.append((path + '\\' + key, -1))
+                    v.totalStatus["deleteFiles"] += 1
+                else:  # 文件夹
+                    deleteQueue.append((path + '\\' + key, 0))
+                    v.totalStatus["deleteFolder"] += 1
 
         else:
             if v.timeKey in localData[key]:  # 文件
-                if localData[key][v.timeKey] != scanData[key][v.timeKey]:  # 本地文件和扫描文件的时间戳不同
+                if localData[key][v.timeKey] != scanData[key][v.timeKey]:  # 本地文件和扫描文件的时间戳不同（更新）
                     updateQueue.append((path + "\\" + key, scanData[key][v.timeKey]))
                     v.totalStatus["updateFiles"] += 1
                     v.totalStatus["uploadSize"] += os.path.getsize(path + '\\' + key)

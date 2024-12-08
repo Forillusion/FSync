@@ -79,7 +79,7 @@ class Var(metaclass=VarMeta):  # 使用 SingletonMeta 作为元类来定义一�
 #             "uploadSize": 0,
 #         }
 #     },
-#     "currentRunTime": 0
+#     "currentStartTime": 0
 #     "runCount": 0,
 #     "realTimeLogs": [],
 #     "scheduled": {

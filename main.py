@@ -81,7 +81,7 @@ def createTestTask():
                 "uploadSize": 0,
             }
         },
-        "currentRunTime": 0,
+        "currentStartTime": 0,
         "runCount": 0,
         "realTimeLogs": [],
         "scheduled": {
