@@ -1,3 +1,4 @@
+from tools import splitPath
 from var import v
 
 
@@ -45,8 +46,7 @@ def recursionCompareData(localData, scanData, path=''):
 
 
 def compareData(localData, scanData, localRoot):
-    folders = localRoot.split("\\")
-    folders = [x for x in folders if x != ""]
+    folders = splitPath(localRoot)
     currentScan = scanData
     for folder in folders:
         if folder not in currentScan:

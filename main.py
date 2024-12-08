@@ -57,23 +57,44 @@ def startUp():
         sleep(1)
 
 
-if __name__ == '__main__':
-    multiprocessing.freeze_support()
+def createTestTask():
+    v.taskList.append({
+        "name": "E:",
+        "localPath": r"E:\test",
+        "cloudPath": r"\test",
+        "deleteCloudFile": True,
+        "realTimeStatus": {
+            "total": {
+                "createFolder": 0,
+                "deleteFolder": 0,
+                "createFiles": 0,
+                "updateFiles": 0,
+                "deleteFiles": 0,
+                "uploadSize": 0,
+            },
+            "finish": {
+                "createFolder": 0,
+                "deleteFolder": 0,
+                "createFiles": 0,
+                "updateFiles": 0,
+                "deleteFiles": 0,
+                "uploadSize": 0,
+            }
+        },
+        "currentRunTime": 0,
+        "runCount": 0,
+        "realTimeLogs": [],
+        "scheduled": {
+            "type": "start|time|interval",
+        },
+        "status": "none|waiting|running|finished|failed",
+        "lastRunTime": 0,
+        "nextRunTime": 0,
+        "logs": []
+    })
+    v.currentTask=v.taskList[0]
 
-    # v.cloudData =load(r"db\cloudData.json")
-    # v.localData =load(r"db\localData.json")
-
-    # if v.cloudData == "":
-    # v.cloudData ={":id":0,"test":{":id":10767340}}
-    # else:
-    #     v.cloudData =json.loads(v.cloudData)
-    # if v.localData == "":
-    #     v.localData ={"E:":{"test":{}}}
-    # else:
-    #     v.localData =json.loads(v.localData)
-    loadCloudData()
-    loadLocalData()
-
+def startTask():
     v.scanData = scanLocalPath(v.localRoot)
 
     print("云盘数据库：", json.dumps(v.cloudData))
@@ -96,6 +117,32 @@ if __name__ == '__main__':
         print(json.dumps(x))
 
     startUp()
+
+def init():
+    createTestTask()
+    loadCloudData()
+    loadLocalData()
+
+
+if __name__ == '__main__':
+    multiprocessing.freeze_support()
+
+    # v.cloudData =load(r"db\cloudData.json")
+    # v.localData =load(r"db\localData.json")
+
+    # if v.cloudData == "":
+    # v.cloudData ={":id":0,"test":{":id":10767340}}
+    # else:
+    #     v.cloudData =json.loads(v.cloudData)
+    # if v.localData == "":
+    #     v.localData ={"E:":{"test":{}}}
+    # else:
+    #     v.localData =json.loads(v.localData)
+
+    init()
+
+    startTask()
+
 
 # 线程1 ： 从队列中取出文件，请求创建文件，获取分片上传地址
 # 线程3 ： 发送文件分片，等待上传完成，记录成功或失败次数

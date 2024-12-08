@@ -10,8 +10,8 @@ class SingletonMeta(type):  # 定义一个元类 SingletonMeta，它继承自 ty
 
 
 class Singleton(metaclass=SingletonMeta):  # 使用 SingletonMeta 作为元类来定义一个类
-    localRoot = r"E:\test"
-    cloudRoot = r"\test"
+    # localRoot = r"E:\test"
+    # cloudRoot = r"\test"
     cloudData = {}
     localData = {}
     upQueue = []
@@ -35,8 +35,54 @@ class Singleton(metaclass=SingletonMeta):  # 使用 SingletonMeta 作为元类�
     idKey = ":id"
     timeKey = ":mt"
 
+    taskList = []
+    currentTask=None
+
     def __init__(self):
         pass
 
+    @property
+    def localRoot(self):
+        return self.currentTask["localPath"]
+
+    @property
+    def cloudRoot(self):
+        return self.currentTask["cloudPath"]
+
+# task = {
+#     "name": "E:",
+#     "localPath": "E:\\test",
+#     "cloudPath": "\\test",
+#     "deleteCloudFile": True,
+#     "realTimeStatus": {
+#         "total": {
+#             "createFolder": 0,
+#             "deleteFolder": 0,
+#             "createFiles": 0,
+#             "updateFiles": 0,
+#             "deleteFiles": 0,
+#             "uploadSize": 0,
+#         },
+#         "finish": {
+#             "createFolder": 0,
+#             "deleteFolder": 0,
+#             "createFiles": 0,
+#             "updateFiles": 0,
+#             "deleteFiles": 0,
+#             "uploadSize": 0,
+#         }
+#     },
+#     "currentRunTime": 0
+#     "runCount": 0,
+#     "realTimeLogs": [],
+#     "scheduled": {
+#       "type":"start|time|interval",
+#         ...
+#     },
+#     "status": "none|waiting|running|finished|failed",
+#     "lastRunTime": 0,
+#     "nextRunTime": 0,
+#     "logs": []
+# }
 
 v = Singleton()

@@ -14,8 +14,6 @@ from var import v
 
 
 def preThread():
-    # upQueue, sliceQueue, reUpQueue, checkQueue, finishQueue, failQueue, localRoot, cloudRoot, localData, cloudData=
-
     upQueue = v.upQueue
     sliceQueue = v.sliceQueue
     reUpQueue = v.reUpQueue
