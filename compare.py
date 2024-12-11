@@ -29,17 +29,17 @@ def recursionCompareData(localData, scanData, path=''):
             if v.cTask["deleteCloudFile"]:  # 根据任务设置，是否删除云盘文件
                 if v.timeKey in localData[key]:  # 文件
                     deleteQueue.append((path + '\\' + key, -1))
-                    v.totalStatus["deleteFiles"] += 1
+                    v.total["deleteFiles"] += 1
                 else:  # 文件夹
                     deleteQueue.append((path + '\\' + key, 0))
-                    v.totalStatus["deleteFolder"] += 1
+                    v.total["deleteFolder"] += 1
 
         else:
             if v.timeKey in localData[key]:  # 文件
                 if localData[key][v.timeKey] != scanData[key][v.timeKey]:  # 本地文件和扫描文件的时间戳不同（更新）
                     updateQueue.append((path + "\\" + key, scanData[key][v.timeKey]))
-                    v.totalStatus["updateFiles"] += 1
-                    v.totalStatus["uploadSize"] += os.path.getsize(path + '\\' + key)
+                    v.total["updateFiles"] += 1
+                    v.total["uploadSize"] += os.path.getsize(path + '\\' + key)
             else:
                 subCreat, subUpdate, subDelete = recursionCompareData(localData[key], scanData[key],
                                                                       path + '\\' + key)  # 递归扫描子文件夹
@@ -51,11 +51,11 @@ def recursionCompareData(localData, scanData, path=''):
         if key not in localData:
             if v.timeKey in scanData[key]:  # 文件
                 createQueue.append((path + "\\" + key, scanData[key][v.timeKey]))
-                v.totalStatus["createFiles"] += 1
-                v.totalStatus["uploadSize"] += os.path.getsize(path + '\\' + key)
+                v.total["createFiles"] += 1
+                v.total["uploadSize"] += os.path.getsize(path + '\\' + key)
             else:   # 文件夹
                 createQueue.append((path + "\\" + key, 0))
-                v.totalStatus["createFolder"] += 1
+                v.total["createFolder"] += 1
                 subCreat = recursionCreateFile(scanData[key], path + "\\" + key)  # 递归扫描子文件夹
                 createQueue.extend(subCreat)
 

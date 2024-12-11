@@ -25,11 +25,14 @@ def preThread():
     localData = v.localData
     cloudData = v.cloudData
 
+    finish = v.finish
+
+
     upSteam = v.upSteam
     controlSteam = v.controlSteam
     returnSteam = v.returnSteam
 
-    def preCreateFolder():
+    def preCreateFolder():  # 创建文件夹
         code, dirID = findFloaderID(current["path"])
         if code != 0:
             console(1, f"{current['fillName']} 文件夹创建失败")
@@ -38,8 +41,9 @@ def preThread():
         console(1, f"{current['fillName']} 文件夹创建成功")
         updataBothData(current["path"], "create folder", 0, dirID)
         finishQueue.append(current)
+        finish["createFolder"] += 1
 
-    def preDeleteFolder():
+    def preDeleteFolder():  # 删除文件夹
         code, dirID = findFloaderID(current["path"])
         if code == 0:
             code = deleteFile(dirID)
@@ -50,8 +54,9 @@ def preThread():
         console(1, f"{current['fillName']} 删除云盘文件夹成功")
         updataBothData(current["path"], "delete folder")
         finishQueue.append(current)
+        finish["deleteFolder"] += 1
 
-    def preDeleteFile():
+    def preDeleteFile():  # 删除文件
         code, fileID = findFileID(current["path"])
         if code == 0:
             code = deleteFile(fileID)
@@ -64,11 +69,12 @@ def preThread():
         updataBothData(current["path"], "delete file")
         sleep(0.5)
         if current["status"] == "update file":
-            current["status"] = "create file"
+            current["status"] = "update file+"
         else:
             finishQueue.append(current)
+            finish["deleteFiles"] += 1
 
-    def preCreateFile():
+    def preCreateFile():  # 创建文件
         size = current["size"] = getSize(current["path"])
         md5 = getMD5(current["path"], 2 ** 22)  # 2**22 = 4MB
         fileName = os.path.basename(current["path"])
@@ -88,6 +94,11 @@ def preThread():
             updataBothData(current["path"], "create file", current["time"], fileID)
             console(1, f"\033[32m{current["fillName"]} 秒传成功\033[0m")
             finishQueue.append(current)
+            finish["uploadSize"] += current["size"]
+            if current["status"] == "create file":
+                finish["createFiles"] += 1
+            else:
+                finish["updateFiles"] += 1
             sleep(0.5)
         else:
             current["preuploadID"] = preuploadID
@@ -138,7 +149,7 @@ def preThread():
             if current["status"] == "delete folder":
                 preDeleteFolder()
 
-            if current["status"] == "create file":
+            if current["status"] == "create file" or current["status"] == "update file+":
                 preCreateFile()
 
 
@@ -221,6 +232,8 @@ def checkThread():
     controlSteam = v.controlSteam
     returnSteam = v.returnSteam
 
+    finish = v.finish
+
     while not v.quitFlag:
         if not checkQueue.empty():
             v.checkThreadIdle = False
@@ -238,6 +251,11 @@ def checkThread():
             if code == 0:
                 updataBothData(current["path"], "create file", current["time"], fileID)
                 finishQueue.append(current)
+                finish["uploadSize"] += current["size"]
+                if current["status"] == "create file":
+                    finish["createFiles"] += 1
+                else:
+                    finish["updateFiles"] += 1
                 console(3, f"\033[32m{current["fillName"]}上传完成\033[0m")
             else:
                 console(3, f"\033[31m{current["fillName"]}上传失败\033[0m")

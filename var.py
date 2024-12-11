@@ -50,12 +50,13 @@ class Var(metaclass=VarMeta):  # 使用 SingletonMeta 作为元类来定义一�
         return self.cTask["cloudPath"]
 
     @property
-    def totalStatus(self):
+    def total(self):
         return self.cTask["realTimeStatus"]["total"]
 
     @property
-    def finishStatus(self):
+    def finish(self):
         return self.cTask["realTimeStatus"]["finish"]
+
 # task = {
 #     "name": "E:",
 #     "localPath": "E:\\test",

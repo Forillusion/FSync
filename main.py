@@ -72,25 +72,25 @@ def createTestTask():
                 "deleteFiles": 0,
                 "uploadSize": 0,
             },
-            "finish": {
-                "createFolder": 0,
-                "deleteFolder": 0,
-                "createFiles": 0,
-                "updateFiles": 0,
-                "deleteFiles": 0,
-                "uploadSize": 0,
+            "finish": { # todo
+                "createFolder": 0,  # todo
+                "deleteFolder": 0,  # todo
+                "createFiles": 0,   # todo
+                "updateFiles": 0,   # todo
+                "deleteFiles": 0,   # todo
+                "uploadSize": 0,    # todo
             }
         },
-        "currentStartTime": 0,
-        "runCount": 0,
-        "realTimeLogs": [],
-        "scheduled": {
-            "type": "start|time|interval",
+        "currentStartTime": 0,  # todo
+        "runCount": 0,  # todo
+        "realTimeLogs": [], # todo
+        "scheduled": {  # todo
+            "type": "start|time|interval",  # todo
         },
-        "status": "none|waiting|running|finished|failed",
-        "lastRunTime": 0,
-        "nextRunTime": 0,
-        "logs": []
+        "status": "none|waiting|running|finished|failed",   # todo
+        "lastRunTime": 0,   # todo
+        "nextRunTime": 0,   # todo
+        "logs": []  # todo
     })
     v.cTask=v.taskList[0]
 
@@ -143,7 +143,8 @@ if __name__ == '__main__':
 
     startTask()
 
-    print(v.totalStatus)
+    print(v.total)
+    print(v.finish)
 
 # 线程1 ： 从队列中取出文件，请求创建文件，获取分片上传地址
 # 线程3 ： 发送文件分片，等待上传完成，记录成功或失败次数
