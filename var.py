@@ -56,9 +56,18 @@ class Var(metaclass=VarMeta):  # 使用 SingletonMeta 作为元类来定义一�
     def total(self):
         return self.cTask["realTimeStatus"]["total"]
 
+    @total.setter
+    def total(self, value):
+        self.cTask["realTimeStatus"]["total"]=value
+
     @property
     def finish(self):
         return self.cTask["realTimeStatus"]["finish"]
+
+    @finish.setter
+    def finish(self, value):
+        self.cTask["realTimeStatus"]["finish"]=value
+
 
 # task = {
 #     "name": "E:",
