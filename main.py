@@ -10,7 +10,7 @@ from time import sleep, time
 
 from compare import compareData, generateQueue
 from scanLocalPath import scanLocalPath
-from database import load, save, loadCloudData, loadLocalData
+from database import loadDB, saveDB, loadCloudData, loadLocalData
 from upProcess import upProcess
 import upThreads as up
 import threading
@@ -87,10 +87,10 @@ def createTestTask():
         "scheduled": {  # todo
             "type": "start|time|interval",  # todo
         },
-        "status": "none|waiting|running|finished|failed",   # todo
-        "lastRunTime": 0,   # todo
+        "status": "none|waiting|running|finished|failed",
+        "lastRunTime": 0,
         "nextRunTime": 0,   # todo
-        "logs": []  # todo
+        "logs": []
     })
     v.cTask=v.taskList[0]
 

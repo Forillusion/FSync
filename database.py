@@ -6,7 +6,7 @@ from tools import splitPath, localPathToCloud
 from var import v
 
 
-def load(path):
+def loadDB(path):
     # 如果文件夹不存在，创建文件夹
     folders = splitPath(path)
     current = ""
@@ -16,14 +16,14 @@ def load(path):
             os.mkdir(current)
 
     if not os.path.exists(path):
-        save(path)
+        saveDB(path)
 
     with open(path, "r", encoding="utf-8") as f:
         return f.read()
 
 
 def loadCloudData():
-    data = load(r"db\cloudData.json")
+    data = loadDB(r"db\cloudData.json")
     if data == "":
         data = '{"' + v.idKey + '":0}'
     v.cloudData = json.loads(data)
@@ -31,13 +31,13 @@ def loadCloudData():
 
 
 def loadLocalData():
-    data = load(r"db\localData.json")
+    data = loadDB(r"db\localData.json")
     if data == "":
         data = '{}'
     v.localData = json.loads(data)
 
 
-def save(path, data):
+def saveDB(path, data):
     with open(path, "w", encoding="utf-8") as f:
         f.write(json.dumps(data, ensure_ascii=False))
 
@@ -65,7 +65,7 @@ def updateCloudData(path, status, id=0, autoSave=True):
         del current[folders[-1]]
 
     if autoSave:
-        save("db/cloudData.json", v.cloudData)
+        saveDB("db/cloudData.json", v.cloudData)
 
 
 def updataLocalData(path, status, time=0, autoSave=True):
@@ -92,7 +92,7 @@ def updataLocalData(path, status, time=0, autoSave=True):
         del current[folders[-1]]
 
     if autoSave:
-        save("db/localData.json", v.localData)
+        saveDB("db/localData.json", v.localData)
 
 
 def updataBothData(localPath, status, time=0, id=0, autoSave=True):
