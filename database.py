@@ -16,7 +16,7 @@ def loadDB(path):
             os.mkdir(current)
 
     if not os.path.exists(path):
-        saveDB(path)
+        saveDB(path,{})
 
     with open(path, "r", encoding="utf-8") as f:
         return f.read()
