@@ -23,7 +23,7 @@ def loadDB(path):
 
 
 def loadCloudData():
-    data = loadDB(r"db\cloudData.json")
+    data = loadDB(v.cloudDataPath)
     if data == "":
         data = '{"' + v.idKey + '":0}'
     v.cloudData = json.loads(data)
@@ -31,7 +31,7 @@ def loadCloudData():
 
 
 def loadLocalData():
-    data = loadDB(r"db\localData.json")
+    data = loadDB(v.localDataPath)
     if data == "":
         data = '{}'
     v.localData = json.loads(data)

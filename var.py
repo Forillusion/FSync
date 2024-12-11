@@ -12,6 +12,9 @@ class VarMeta(type):  # 定义一个元类 SingletonMeta，它继承自 type
 class Var(metaclass=VarMeta):  # 使用 SingletonMeta 作为元类来定义一个类
     # localRoot = r"E:\test"
     # cloudRoot = r"\test"
+    cloudDataPath=r"db\cloudData.json"
+    localDataPath=r"db\localData.json"
+    taskDataPath=r"db\taskData.json"
     cloudData = {}
     localData = {}
     upQueue = []
