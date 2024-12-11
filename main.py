@@ -85,7 +85,7 @@ def createTestTask():
         "runCount": 0,
         "realTimeLogs": [], # todo
         "scheduled": {  # todo
-            "type": "start|time|interval",  # todo
+            "type": "none| start|time|interval",  # todo
         },
         "status": "none|waiting|running|finished|failed",
         "lastRunTime": 0,
