@@ -6,7 +6,7 @@
 # 6，根据步骤5返回的结果，判断是否需要调用【异步轮询获取上传结果】接口，获取上传的最终结果。该时间需要等待，123云盘服务器会校验用户预上传时的MD5与实际上传成功的MD5是否一致。
 import json
 import queue
-from time import sleep
+from time import sleep, time
 
 from compare import compareData, generateQueue
 from scanLocalPath import scanLocalPath
@@ -72,17 +72,17 @@ def createTestTask():
                 "deleteFiles": 0,
                 "uploadSize": 0,
             },
-            "finish": { # todo
-                "createFolder": 0,  # todo
-                "deleteFolder": 0,  # todo
-                "createFiles": 0,   # todo
-                "updateFiles": 0,   # todo
-                "deleteFiles": 0,   # todo
-                "uploadSize": 0,    # todo
+            "finish": {
+                "createFolder": 0,
+                "deleteFolder": 0,
+                "createFiles": 0,
+                "updateFiles": 0,
+                "deleteFiles": 0,
+                "uploadSize": 0,
             }
         },
-        "currentStartTime": 0,  # todo
-        "runCount": 0,  # todo
+        "currentStartTime": 0,
+        "runCount": 0,
         "realTimeLogs": [], # todo
         "scheduled": {  # todo
             "type": "start|time|interval",  # todo
@@ -94,7 +94,63 @@ def createTestTask():
     })
     v.cTask=v.taskList[0]
 
+def beforeRunTask():
+    v.cTask["currentStartTime"] = time()
+    v.cTask["runCount"] += 1
+    v.cTask["status"] = "running"
+    v.total = {
+        "createFolder": 0,
+        "deleteFolder": 0,
+        "createFiles": 0,
+        "updateFiles": 0,
+        "deleteFiles": 0,
+        "uploadSize": 0,
+    }
+    v.finish = {
+        "createFolder": 0,
+        "deleteFolder": 0,
+        "createFiles": 0,
+        "updateFiles": 0,
+        "deleteFiles": 0,
+        "uploadSize": 0,
+    }
+    v.cTask["lastRunTime"] = time()
+    # todo: v.cTask["nextRunTime"]
+
+def afterRunTask():
+    fail={
+        "createFolder": v.total["createFolder"]-v.finish["createFolder"],
+        "deleteFolder": v.total["deleteFolder"]-v.finish["deleteFolder"],
+        "createFiles": v.total["createFiles"]-v.finish["createFiles"],
+        "updateFiles": v.total["updateFiles"]-v.finish["updateFiles"],
+        "deleteFiles": v.total["deleteFiles"]-v.finish["deleteFiles"],
+        "uploadSize": v.total["uploadSize"]-v.finish["uploadSize"],
+    }
+
+    v.logs.append()
+
+    if (fail["createFolder"]+fail["deleteFolder"]+fail["createFiles"]+fail["updateFiles"]+fail["deleteFiles"])>0:
+        v.cTask["status"] = "failed"
+    else:
+        v.cTask["status"] = "finished"
+
+    log={
+        "startTime": v.cTask["currentStartTime"],
+        v.realTimeStatus: {
+            "total": v.total,
+            "finish": v.finish,
+            "fail": fail,
+        },
+        "status": v.cTask["status"],
+    }
+
+    v.cTask["logs"].append(log)
+
+
+
 def startTask():
+    beforeRunTask()
+
     v.scanData = scanLocalPath(v.localRoot)
 
     print("云盘数据库：", json.dumps(v.cloudData))
