@@ -29,7 +29,7 @@ class Var(metaclass=VarMeta):  # 使用 SingletonMeta 作为元类来定义一�
     preThreadIdle = False
     upThreadIdle = False
     checkThreadIdle = False
-    quitFlag = False
+    upThreadQuitFlag = False
 
     upSteam = multiprocessing.Queue()
     controlSteam = multiprocessing.Queue()
@@ -37,6 +37,8 @@ class Var(metaclass=VarMeta):  # 使用 SingletonMeta 作为元类来定义一�
 
     idKey = ":id"
     timeKey = ":mt"
+
+    taskThreadQuitFlag = False
 
     taskList = []
     cTask=None # current task

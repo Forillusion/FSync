@@ -143,3 +143,20 @@ def setNextRunTime(task):
 # "interval":  间隔运行
 #      "interval": 3600  间隔时间
 #      "missed": True  是否补充未运行的任务
+
+def checkNoneNextRunTime():
+    for x in v.taskList:
+        if x["nextRunTime"] == 0:
+            setNextRunTime(x)
+
+
+def checkTask(start=0):
+    if start == 1:
+        for x in v.taskList:
+            if checkStartSecheduled(x):
+                x["status"] = "waiting"
+    else:
+        for x in v.taskList:
+            print(x["name"], checkTaskRunTime(x))
+            if checkTaskRunTime(x):
+                x["status"] = "waiting"

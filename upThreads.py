@@ -121,7 +121,7 @@ def preThread():
                 sliceQueue.put(slice)
                 sleep(1)
 
-    while not v.quitFlag:
+    while not v.upThreadQuitFlag:
         while not reUpQueue.empty():
             v.preThreadIdle = False
             get = reUpQueue.get()
@@ -175,7 +175,7 @@ def upThread():
     returnSteam = v.returnSteam
 
     cleanFile = ""
-    while not v.quitFlag:
+    while not v.upThreadQuitFlag:
         if not sliceQueue.empty():
             v.upThreadIdle = False
             current = sliceQueue.get()
@@ -234,7 +234,7 @@ def checkThread():
 
     finish = v.finish
 
-    while not v.quitFlag:
+    while not v.upThreadQuitFlag:
         if not checkQueue.empty():
             v.checkThreadIdle = False
             current = checkQueue.get()
