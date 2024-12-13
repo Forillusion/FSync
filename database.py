@@ -27,7 +27,6 @@ def loadCloudData():
     if data == "":
         data = '{"' + v.idKey + '":0}'
     v.cloudData = json.loads(data)
-    getCloudListToData(v.cloudRoot)
 
 
 def loadLocalData():

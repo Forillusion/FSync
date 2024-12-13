@@ -16,10 +16,14 @@ def loadTask():
             os.mkdir(current)
 
     if not os.path.exists(v.taskDataPath):
-        savaTask(v.taskDataPath, {})
+        savaTask()
 
     with open(v.taskDataPath, "r", encoding="utf-8") as f:
-        return f.read()
+        x=f.read()
+        if x=="":
+            v.taskList=[]
+        else:
+            v.taskList=json.loads(x)
 
 
 def savaTask():
@@ -109,7 +113,7 @@ def setNextRunTime(task):
         setTime = task["scheduled"]["time"]
         nextTime = 0
 
-        n = time.localtime()
+        n = time.localtime( )
         n = time.strptime(f"{n.tm_year} {n.tm_yday}", "%Y %j")
         n = time.mktime(n)
         s = setTime.split(":")
@@ -125,10 +129,10 @@ def setNextRunTime(task):
                 break
         if nextTime == 0:
             nextTime = n + (task["scheduled"]["week"][0] + 7 - nowWeek) * 24 * 3600
-        task["nextRunTime"] = nextTime
+        task["nextRunTime"] = int(nextTime)
 
     if task["scheduled"]["type"] == "interval":
-        task["nextRunTime"] = time.time() + task["scheduled"]["interval"]
+        task["nextRunTime"] = int(time.time() + task["scheduled"]["interval"])
 
 # "none":
 # "start": 当程序启动时运行

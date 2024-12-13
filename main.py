@@ -10,7 +10,8 @@ from time import sleep, time
 
 from compare import compareData, generateQueue
 from scanLocalPath import scanLocalPath
-from database import loadDB, saveDB, loadCloudData, loadLocalData
+from database import loadDB, saveDB, loadCloudData, loadLocalData, getCloudListToData
+from task import setNextRunTime, checkTaskRunTime, loadTask, checkStartSecheduled, savaTask
 from upProcess import upProcess
 import upThreads as up
 import threading
@@ -83,19 +84,26 @@ def createTestTask():
         },
         "currentStartTime": 0,
         "runCount": 0,
-        "realTimeLogs": [], # todo
+        "realTimeLogs": [],  # todo
         "scheduled": {  # todo
-            "type": "none| start|time|interval",  # todo
+            # "type": "none| start|time|interval",  # todo
+            "type": "time",
+            "time": "12:00:00",
+            "week": [1, 2, 3, 4, 5, 6, 7],
+            "missed": True
+
         },
-        "status": "none|waiting|running|finished|failed",
+        # "status": "none|waiting|running|finished|failed",
+        "status": "none",
         "lastRunTime": 0,
-        "nextRunTime": 0,   # todo
+        "nextRunTime": 0,  # todo
         "logs": []
     })
-    v.cTask=v.taskList[0]
+    v.cTask = v.taskList[0]
+
 
 def beforeRunTask():
-    v.cTask["currentStartTime"] = time()
+    v.cTask["currentStartTime"] = int(time())
     v.cTask["runCount"] += 1
     v.cTask["status"] = "running"
     v.total = {
@@ -114,29 +122,29 @@ def beforeRunTask():
         "deleteFiles": 0,
         "uploadSize": 0,
     }
-    v.cTask["lastRunTime"] = time()
+    v.cTask["lastRunTime"] = int(time())
     # todo: v.cTask["nextRunTime"]
 
+
 def afterRunTask():
-    fail={
-        "createFolder": v.total["createFolder"]-v.finish["createFolder"],
-        "deleteFolder": v.total["deleteFolder"]-v.finish["deleteFolder"],
-        "createFiles": v.total["createFiles"]-v.finish["createFiles"],
-        "updateFiles": v.total["updateFiles"]-v.finish["updateFiles"],
-        "deleteFiles": v.total["deleteFiles"]-v.finish["deleteFiles"],
-        "uploadSize": v.total["uploadSize"]-v.finish["uploadSize"],
+    fail = {
+        "createFolder": v.total["createFolder"] - v.finish["createFolder"],
+        "deleteFolder": v.total["deleteFolder"] - v.finish["deleteFolder"],
+        "createFiles": v.total["createFiles"] - v.finish["createFiles"],
+        "updateFiles": v.total["updateFiles"] - v.finish["updateFiles"],
+        "deleteFiles": v.total["deleteFiles"] - v.finish["deleteFiles"],
+        "uploadSize": v.total["uploadSize"] - v.finish["uploadSize"],
     }
 
-    v.logs.append()
-
-    if (fail["createFolder"]+fail["deleteFolder"]+fail["createFiles"]+fail["updateFiles"]+fail["deleteFiles"])>0:
+    if (fail["createFolder"] + fail["deleteFolder"] + fail["createFiles"] + fail["updateFiles"] + fail[
+        "deleteFiles"]) > 0:
         v.cTask["status"] = "failed"
     else:
         v.cTask["status"] = "finished"
 
-    log={
+    log = {
         "startTime": v.cTask["currentStartTime"],
-        v.realTimeStatus: {
+        "realTimeStatus": {
             "total": v.total,
             "finish": v.finish,
             "fail": fail,
@@ -147,9 +155,11 @@ def afterRunTask():
     v.cTask["logs"].append(log)
 
 
-
-def startTask():
+def startTask(task):
+    v.cTask = task
     beforeRunTask()
+    setNextRunTime(v.cTask)
+    getCloudListToData(v.cloudRoot)
 
     v.scanData = scanLocalPath(v.localRoot)
 
@@ -173,34 +183,65 @@ def startTask():
         print(json.dumps(x))
 
     startUp()
+    afterRunTask()
+    print(v.cTask["name"], "任务结束")
+    v.cTask = None
+
+
+def taskThread():
+    while True:
+        for x in v.taskList:
+            if x["status"] == "waiting":
+                startTask(x)
+        sleep(5)
+
+
+def checkTask(start=0):
+    if start == 1:
+        for x in v.taskList:
+            if checkStartSecheduled(x):
+                x["status"] = "waiting"
+    else:
+        for x in v.taskList:
+            print(x["name"], checkTaskRunTime(x))
+            if checkTaskRunTime(x):
+                x["status"] = "waiting"
+
+
+def startTaskThread():
+    thread1 = threading.Thread(target=taskThread)
+    thread1.start()
+
+
+def checkNoneNextRunTime():
+    for x in v.taskList:
+        if x["nextRunTime"] == 0:
+            setNextRunTime(x)
+
 
 def init():
-    createTestTask()
     loadCloudData()
     loadLocalData()
+    loadTask()
+    # createTestTask()
 
 
 if __name__ == '__main__':
     multiprocessing.freeze_support()
 
-    # v.cloudData =load(r"db\cloudData.json")
-    # v.localData =load(r"db\localData.json")
-
-    # if v.cloudData == "":
-    # v.cloudData ={":id":0,"test":{":id":10767340}}
-    # else:
-    #     v.cloudData =json.loads(v.cloudData)
-    # if v.localData == "":
-    #     v.localData ={"E:":{"test":{}}}
-    # else:
-    #     v.localData =json.loads(v.localData)
-
     init()
+    checkNoneNextRunTime()
+    checkTask(1)
+    startTaskThread()
+    while True:
+        checkTask()
+        savaTask()
+        sleep(5)
+    # taskThread()
+    # startTask()
 
-    startTask()
-
-    print(v.total)
-    print(v.finish)
+    # print(v.total)
+    # print(v.finish)
 
 # 线程1 ： 从队列中取出文件，请求创建文件，获取分片上传地址
 # 线程3 ： 发送文件分片，等待上传完成，记录成功或失败次数
