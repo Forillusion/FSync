@@ -1,27 +1,34 @@
 import hashlib
 import time
+from var import v
 
 
 class DataWithCallback:
-    def __init__(self, data):
+    def __init__(self, data,current,returnSteam):
         self.data = data
-        self.len = len(data)
-        self.current = 0
+        self.len = len(data)  # current slice size
+        self.currentSize = 0
+        self.returnSteam=returnSteam
+        self.sliceSize=current["sliceSize"]
+        self.currentSlice=current["currentSlice"]
+        self.totalSize=current["size"]
+
+
 
     def getMD5(self):
-        # L=time.perf_counter()
-        md5 = hashlib.md5(self.data).hexdigest()
-        # print("DataMD5计算用时(ms):",(time.perf_counter()-L)*1000)
-        return md5
+        return hashlib.md5(self.data).hexdigest()
 
     def read(self, size=-1):
         size = size if size >= 0 else self.len
-        chunk = self.data[self.current:min(self.current + size, self.len)]
+        chunk = self.data[self.currentSize:min(self.currentSize + size, self.len)]
 
-        self.current = min(self.current + size, self.len)
+        self.currentSize = min(self.currentSize + size, self.len)
 
-        # print("current_size:",size,"\tlen_size:",self.len,"\tprogress:",self.current/self.len*100,"%      ",end="\r")
-        p = self.current / self.len * 100
-        if p - int(p) < 0.05 and int(p) % 10 == 0:
-            print(int(self.current / self.len * 100), end=" ")
+        self.progressCallback(self.currentSize)
         return chunk
+
+    def progressCallback(self,upsize):
+        up=self.sliceSize*(self.currentSlice-1)+upsize
+        p=up/self.totalSize*100
+        while self.returnSteam.empty():
+            self.returnSteam.put({"totalProgress":p})

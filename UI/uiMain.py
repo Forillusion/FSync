@@ -1,11 +1,14 @@
 import sys
 
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QColor
 from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import Qt
 
+from UI.config import cfg
 from UI.taskList import taskListWindow
 from UI.upList import upListWindow
-from qfluentwidgets import FluentWindow, FluentIcon as FIF
+from qfluentwidgets import FluentWindow, FluentIcon as FIF, NavigationItemPosition, FluentTranslator
+from UI.setting import SettingWindow
 
 from task import loadTask
 
@@ -19,7 +22,14 @@ from task import loadTask
 
 class window(FluentWindow):
     def __init__(self):
+        QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough) # 设置高DPI缩放因子
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling) # 启用高DPI缩放
+        QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps) # 使用高DPI图标
         self.app = QApplication(sys.argv)
+        locale = cfg.get(cfg.language).value
+        fluentTranslator = FluentTranslator(locale)
+        self.app.installTranslator(fluentTranslator)
+
         super().__init__()
         print("debug1")
         self.show()
@@ -34,6 +44,7 @@ class window(FluentWindow):
         # # 添加子界面
         self.upListWindow = upListWindow(self)
         self.taskListWindow = taskListWindow(self)
+        self.settingWindow=SettingWindow(self)
 
         # self.webWindow = WebWindow(self)
         # self.settingWindow = SettingWindow(self)
@@ -41,7 +52,7 @@ class window(FluentWindow):
         self.addSubInterface(self.upListWindow, FIF.SPEED_OFF, '上传列表')
         self.addSubInterface(self.taskListWindow, FIF.SPEED_OFF, '任务列表')
         # self.addSubInterface(self.webWindow,FIF.SPEED_OFF,'网页统计')
-        # self.addSubInterface(self.settingWindow, FIF.SETTING, '设置', NavigationItemPosition.BOTTOM)
+        self.addSubInterface(self.settingWindow, FIF.SETTING, '设置', NavigationItemPosition.BOTTOM)
 
         self.navigationInterface.setMinimumExpandWidth(16000)
         self.resize(700, 500)
@@ -55,7 +66,6 @@ class window(FluentWindow):
 
     def closeEvent(self, event):
         event.accept()
-
 
 # while w.isVisible():
 #     w.runWindow()

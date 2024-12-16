@@ -132,12 +132,9 @@ def preThread():
         if len(upQueue) > 0 and len(sliceQueue) < 1:
             v.preThreadIdle = False
 
-            v.currentHandle = current = upQueue[-1]
-
-            upQueue.pop()
-            # current["fillName"] = os.path.basename(current["path"])
+            v.currentHandle = current = upQueue[0]
+            upQueue.pop(0)
             console(1, f"获取到新文件 {current['fillName']} {current["status"]} ,剩余{len(upQueue)}个文件")
-
             current["tryTime"] += 1
 
             if current["status"] == "create folder":
@@ -197,9 +194,17 @@ def upThread():
                 tryTime += 1
 
                 upSteam.put(current)
-                while returnSteam.empty():
-                    sleep(0.1)
-                status = returnSteam.get()
+                status=0
+                while True:
+                    while returnSteam.empty():
+                        sleep(0.1)
+                    status = returnSteam.get()
+                    if "totalProgress" in status:
+                        current["totalProgress"] = status["totalProgress"]
+                        print(status)
+                    else:
+                        status=status["code"]
+                        break
 
                 if status == 200:
                     console(2, f"{current['fillName']} 分片 {current['currentSlice']} 上传完成")

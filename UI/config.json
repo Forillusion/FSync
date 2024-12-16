@@ -1,0 +1,9 @@
+{
+    "MainWindow": {
+        "Language": "Auto"
+    },
+    "QFluentWidgets": {
+        "ThemeColor": "#ffbddd9a",
+        "ThemeMode": "Light"
+    }
+}

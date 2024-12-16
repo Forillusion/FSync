@@ -83,12 +83,18 @@ def getUploadUrl(preuploadID, sliceNo=1):
 
 
 # 上传文件分片
-def uploadFileSlice(url, filePath, sliceSize, sliceNo=1):
+# def uploadFileSlice(url, filePath, sliceSize, sliceNo,returnSteam):
+def uploadFileSlice(current, returnSteam):
+    url=current["URL"]
+    filePath=current["path"]
+    sliceSize=current["sliceSize"]
+    sliceNo= current["currentSlice"]
+
     data = None
     with open(filePath, 'rb') as f:
         f.seek((sliceNo - 1) * sliceSize)
         x = f.read(sliceSize)
-        data = DataWithCallback(x)
+        data = DataWithCallback(x,current,returnSteam)
 
     # L=time.perf_counter()
     # x=file[(sliceNo-1)*sliceSize:min(sliceNo*sliceSize,len(file))]

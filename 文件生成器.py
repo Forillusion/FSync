@@ -15,7 +15,8 @@ def generate_random_file(filename, size_mb):
 
 if __name__ == "__main__":
     for i in range(5):
-        generate_random_file(str(i), 60)
+        generate_random_file(str(i)+".test", 60)
+
 
     # open('5GB','wb').write(b'\x00'*2**30*5)
     # 获取控制台长度

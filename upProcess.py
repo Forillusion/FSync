@@ -15,7 +15,8 @@ def upProcess(upSteam, controlSteam, returnSteam):
 
         while not upSteam.empty():
             current = upSteam.get()
-            status = uploadFileSlice(current["URL"], current["path"], current["sliceSize"], current["currentSlice"])
-            returnSteam.put(status)
+            # status = uploadFileSlice(current["URL"], current["path"], current["sliceSize"], current["currentSlice"],returnSteam)
+            status = uploadFileSlice(current, returnSteam)
+            returnSteam.put({"code": status})
 
         sleep(0.1)
