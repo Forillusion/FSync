@@ -25,7 +25,7 @@ def startUp():
     p.start()
     while not v.upThreadQuitFlag:
         # print(v.preThreadIdle, v.upThreadIdle, v.checkThreadIdle, v.upThreadQuitFlag)
-        if (len(v.upQueue) == 0 and v.reUpQueue.empty() and v.sliceQueue.empty()
+        if (len(v.upQueue) == 0 and v.reUpQueue.empty() and len(v.sliceQueue) == 0
                 and v.checkQueue.empty() and v.preThreadIdle and v.upThreadIdle and v.checkThreadIdle):
             v.upThreadQuitFlag = True
             v.controlSteam.put("quit")
@@ -160,6 +160,7 @@ def startTask(task):
     for x in v.upQueue:
         print(json.dumps(x))
 
+    sleep(5)
     startUp()
     afterRunTask()
     print(v.cTask["name"], "任务结束")
@@ -169,6 +170,6 @@ def startTask(task):
 def taskThread():
     while not v.taskThreadQuitFlag:
         for x in v.taskList:
-            if x["status"] == "waiting":
+            if x["status"] == "waiting" or x["status"] == "interrupt":
                 startTask(x)
         sleep(1)

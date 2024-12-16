@@ -23,7 +23,11 @@ class Var(metaclass=VarMeta):  # 使用 SingletonMeta 作为元类来定义一�
     checkQueue = queue.Queue()
     failQueue = []
     finishQueue = []
-    sliceQueue = queue.Queue()
+    # sliceQueue = queue.Queue()
+    sliceQueue=[]
+
+    currentHandle = None
+    currentUpLoad = None
 
     maxTryTime = 3
     preThreadIdle = False

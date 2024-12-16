@@ -27,7 +27,6 @@ def preThread():
 
     finish = v.finish
 
-
     upSteam = v.upSteam
     controlSteam = v.controlSteam
     returnSteam = v.returnSteam
@@ -114,11 +113,11 @@ def preThread():
                 if code != 0:
                     reUpQueue.put(current)
                     if i != 0:
-                        sliceQueue.put({"path": current["path"], "clean": True})
+                        sliceQueue.append({"path": current["path"], "clean": True})
                     break
 
                 console(1, f"{slice['fillName']} 分片 {slice["currentSlice"]} 发送到分片队列")
-                sliceQueue.put(slice)
+                sliceQueue.append(slice)
                 sleep(1)
 
     while not v.upThreadQuitFlag:
@@ -130,12 +129,13 @@ def preThread():
                 console(1, f"{get['fillName']} 重试次数 {get['tryTime']}")
                 upQueue.append(get)
 
-        if len(upQueue) > 0 and sliceQueue.qsize() < 5:
+        if len(upQueue) > 0 and len(sliceQueue) < 1:
             v.preThreadIdle = False
 
-            current = upQueue[-1]
+            v.currentHandle = current = upQueue[-1]
+
             upQueue.pop()
-            current["fillName"] = os.path.basename(current["path"])
+            # current["fillName"] = os.path.basename(current["path"])
             console(1, f"获取到新文件 {current['fillName']} {current["status"]} ,剩余{len(upQueue)}个文件")
 
             current["tryTime"] += 1
@@ -151,6 +151,8 @@ def preThread():
 
             if current["status"] == "create file" or current["status"] == "update file+":
                 preCreateFile()
+
+            v.currentHandle = None
 
 
         else:
@@ -173,12 +175,14 @@ def upThread():
     upSteam = v.upSteam
     controlSteam = v.controlSteam
     returnSteam = v.returnSteam
+    finish = v.finish
 
     cleanFile = ""
     while not v.upThreadQuitFlag:
-        if not sliceQueue.empty():
+        if len(sliceQueue)>0:
             v.upThreadIdle = False
-            current = sliceQueue.get()
+            v.currentUpLoad = current = sliceQueue[0]
+            sliceQueue.pop(0)
             console(2, f"获取到分片 {current['fillName']} 分片 {current['currentSlice']}")
 
             if "clean" in current:
@@ -199,6 +203,7 @@ def upThread():
 
                 if status == 200:
                     console(2, f"{current['fillName']} 分片 {current['currentSlice']} 上传完成")
+                    finish["uploadSize"] += current["sliceSize"]
 
                     if current["currentSlice"] == current["totalSlice"]:
                         console(2, f"{current['fillName']} 全部分片上传完成，加入校验队列")
@@ -211,6 +216,9 @@ def upThread():
                         console(2, f"{current['fillName']} 上传失败次数超过 {v.maxTryTime} 次，加入重新上传队列")
                         reUpQueue.put(current)
                         break
+
+            v.currentUpLoad = None
+
         else:
             v.upThreadIdle = True
             sleep(0.1)
@@ -251,7 +259,7 @@ def checkThread():
             if code == 0:
                 updataBothData(current["path"], "create file", current["time"], fileID)
                 finishQueue.append(current)
-                finish["uploadSize"] += current["size"]
+                # finish["uploadSize"] += current["size"]
                 if current["status"] == "create file":
                     finish["createFiles"] += 1
                 else:

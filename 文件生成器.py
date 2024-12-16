@@ -14,7 +14,7 @@ def generate_random_file(filename, size_mb):
 
 
 if __name__ == "__main__":
-    for i in range(2):
+    for i in range(5):
         generate_random_file(str(i), 60)
 
     # open('5GB','wb').write(b'\x00'*2**30*5)

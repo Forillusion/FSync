@@ -1,11 +1,13 @@
-from time import sleep
+from time import sleep,time
 
 from database import loadCloudData, loadLocalData
-from task import loadTask, savaTask, checkNoneNextRunTime, checkTask
+from task import loadTask, savaTask, checkNoneNextRunTime, checkTask, checkInterruptTask
 from taskThread import taskThread
 import threading
 import multiprocessing
 
+from UI.uiMain import window
+from var import v
 
 # 1.读取文件
 # 2.获取文件大小
@@ -37,13 +39,25 @@ if __name__ == '__main__':
     multiprocessing.freeze_support()
 
     init()
-    startTaskThread()
+
     checkTask(1)
+    startTaskThread()
     checkNoneNextRunTime()
-    while True:
-        checkTask()
-        savaTask()
-        sleep(1)
+    checkInterruptTask()
+
+    w = window()
+    lastTime=0
+    while w.isVisible():
+        w.runWindow()
+        if time()-lastTime>=1:
+            lastTime=time()
+            checkTask()
+            savaTask()
+
+    v.upThreadQuitFlag=True
+    v.taskThreadQuitFlag=True
+    v.controlSteam.put("quit")
+        # sleep(0.1)
 
     # print(v.total)
     # print(v.finish)

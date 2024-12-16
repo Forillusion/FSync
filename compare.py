@@ -85,19 +85,22 @@ def generateQueue(createQueue, updateQueue, deleteQueue):
         if key[1] == 0:
             upQueue.append({"path": key[0], "tryTime": 0, "status": "create folder"})
         else:
-            upQueue.append({"path": key[0], "tryTime": 0, "status": "create file", "time": key[1]})
+            upQueue.append({"path": key[0], "tryTime": 0, "status": "create file", "time": key[1], "size": os.path.getsize(key[0])})
 
     for key in updateQueue:
         if key[1] == 0:
             upQueue.append({"path": key[0], "tryTime": 0, "status": "update folder"})
         else:
-            upQueue.append({"path": key[0], "tryTime": 0, "status": "update file", "time": key[1]})
+            upQueue.append({"path": key[0], "tryTime": 0, "status": "update file", "time": key[1], "size": os.path.getsize(key[0])})
 
     for key in deleteQueue:
         if key[1] == 0:
             upQueue.append({"path": key[0], "tryTime": 0, "status": "delete folder"})
         else:
             upQueue.append({"path": key[0], "tryTime": 0, "status": "delete file"})
+
+    for key in upQueue:
+        key["fillName"] = os.path.basename(key["path"])
     return upQueue
 
 # upQueue.append({"path":r"E:\Python\ForillusionSync\0","tryTime":0,"status":"new file"})

@@ -19,11 +19,11 @@ def loadTask():
         savaTask()
 
     with open(v.taskDataPath, "r", encoding="utf-8") as f:
-        x=f.read()
-        if x=="":
-            v.taskList=[]
+        x = f.read()
+        if x == "":
+            v.taskList = []
         else:
-            v.taskList=json.loads(x)
+            v.taskList = json.loads(x)
 
 
 def savaTask():
@@ -34,6 +34,7 @@ def savaTask():
 def newTask(path):
     defalutTask = {
         "name": "E:",
+        "enabled": True,
         "localPath": r"",
         "cloudPath": r"",
         "deleteCloudFile": True,
@@ -113,7 +114,7 @@ def setNextRunTime(task):
         setTime = task["scheduled"]["time"]
         nextTime = 0
 
-        n = time.localtime( )
+        n = time.localtime()
         n = time.strptime(f"{n.tm_year} {n.tm_yday}", "%Y %j")
         n = time.mktime(n)
         s = setTime.split(":")
@@ -133,6 +134,7 @@ def setNextRunTime(task):
 
     if task["scheduled"]["type"] == "interval":
         task["nextRunTime"] = int(time.time() + task["scheduled"]["interval"])
+
 
 # "none":
 # "start": 当程序启动时运行
@@ -160,3 +162,10 @@ def checkTask(start=0):
             print(x["name"], checkTaskRunTime(x))
             if checkTaskRunTime(x):
                 x["status"] = "waiting"
+
+def checkInterruptTask():
+    for x in v.taskList:
+        if x["status"] == "running":
+            x["status"] = "interrupt"
+            # x["logs"].append("任务被中断")
+            # x["nextRunTime"] = int(time.time() + 60)
