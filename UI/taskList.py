@@ -66,7 +66,7 @@ class taskBlock(CardWidget):
 
         self.setObjectName("taskBlock")
         # self.setStyleSheet("#taskBlock{border-radius:10px;background-color:white;}")#border:1px solid #d3d3d3;
-        self.setFixedSize(300, 150)
+        self.setFixedSize(320, 150)
         self.setContentsMargins(20, 20, 20, 20)
         self.layout = QGridLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)

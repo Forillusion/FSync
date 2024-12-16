@@ -13,6 +13,11 @@ from var import v
 
 
 def startUp():
+    v.preThreadIdle = False
+    v.upThreadIdle = False
+    v.checkThreadIdle = False
+    v.upThreadQuitFlag = False
+
     preThread = threading.Thread(target=up.preThread)
     preThread.start()
     upThread = threading.Thread(target=up.upThread)
