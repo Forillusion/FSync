@@ -2,9 +2,12 @@ import time
 
 from PySide6.QtCore import QEasingCurve
 from PySide6.QtWidgets import QWidget, QLabel, QGridLayout
-from qfluentwidgets import ScrollArea, FlowLayout, PushButton, CardWidget, BodyLabel, CheckBox
+from qfluentwidgets import ScrollArea, FlowLayout, PushButton, CardWidget, BodyLabel, CheckBox, \
+    TransparentTogglePushButton, SwitchButton
 
+from UI.config import cfg
 from task import newTask, addTask, updateTask, deleteTask
+from tools import removeLastSlash
 from var import v
 from UI.taskDetail import taskDetailMsgBox
 # from UI.ui_taskBlock import Ui_TaskBlock
@@ -51,8 +54,8 @@ class taskListWindow(ScrollArea):
         if w.exec():
             task["name"] = w.nameLine.text()
             task["enabled"] = w.enabledButton.isChecked()
-            task["localPath"] = w.localPathLine.text()
-            task["cloudPath"] = w.cloudPathLine.text()
+            task["localPath"] = removeLastSlash(w.localPathLine.text())
+            task["cloudPath"] = removeLastSlash(w.cloudPathLine.text())
             task["deleteCloudFile"] = w.deleteButton.isChecked()
             task["scheduled"]["type"] = w.scheduledBox.currentData()
             if task["scheduled"]["type"] == "time":
@@ -123,12 +126,6 @@ class taskBlock(CardWidget):
         self.task = task
         self.parentWindow = parentWindow
 
-        name = task["name"]
-        localPath = task["localPath"]
-        cloudPath = task["cloudPath"]
-        lastRunTime = task["lastRunTime"]
-        nextRunTime = task["nextRunTime"]
-
         self.setObjectName("taskBlock")
         # self.setStyleSheet("#taskBlock{border-radius:10px;background-color:white;}")#border:1px solid #d3d3d3;
         self.setFixedSize(320, 150)
@@ -138,40 +135,58 @@ class taskBlock(CardWidget):
         self.layout.setVerticalSpacing(10)
         self.layout.setHorizontalSpacing(10)
 
-        # 设置可以点击
-        # self.setEnabled(True)
-        self.clicked.connect(self.checkEvent)
 
         self.NameLabel = BodyLabel(self)
-        self.NameLabel.setText(name)
         self.layout.addWidget(self.NameLabel, 0, 0, 1, 1)
 
-        # self.EnabledBox = CheckBox(self)
-        # self.EnabledBox.setText("Enabled")
-        # self.layout.addWidget(self.EnabledBox, 0, 1, 1, 1)
+        self.enabledButton = BodyLabel()
+        self.layout.addWidget(self.enabledButton, 0, 1, 1, 1)
+
 
         self.LocalPathLabel = BodyLabel(self)
-        self.LocalPathLabel.setText("本地：" + localPath)
         self.layout.addWidget(self.LocalPathLabel, 1, 0, 1, 1)
 
         self.CloudPathLabel = BodyLabel(self)
-        self.CloudPathLabel.setText("云端：" + cloudPath)
         self.layout.addWidget(self.CloudPathLabel, 1, 1, 1, 1)
 
         self.LastRunTimeLabel = BodyLabel(self)
-        self.LastRunTimeLabel.setText(time.strftime("上次：%m-%d %H:%M:%S", time.localtime(lastRunTime)))
         self.layout.addWidget(self.LastRunTimeLabel, 2, 0, 1, 1)
 
         self.NextRunTimeLabel = BodyLabel(self)
-        self.NextRunTimeLabel.setText(time.strftime("下次：%m-%d %H:%M:%S", time.localtime(nextRunTime)))
         self.layout.addWidget(self.NextRunTimeLabel, 2, 1, 1, 1)
+
+        self.statusLable = BodyLabel(self)
+        self.layout.addWidget(self.statusLable, 3, 0, 1, 2)
+
+        self.update()
+        self.clicked.connect(self.checkEvent)
+
 
     def update(self):
         self.NameLabel.setText(self.task["name"])
+
+        if self.task["enabled"]:
+            self.enabledButton.setText("启用")
+            self.enabledButton.setStyleSheet("color: #000000;")
+        else:
+            self.enabledButton.setText("禁用")
+            self.enabledButton.setStyleSheet("color: #C0C0C0;")
+
         self.LocalPathLabel.setText("本地：" + self.task["localPath"])
         self.CloudPathLabel.setText("云端：" + self.task["cloudPath"])
-        self.LastRunTimeLabel.setText(time.strftime("上次：%m-%d %H:%M:%S", time.localtime(self.task["lastRunTime"])))
-        self.NextRunTimeLabel.setText(time.strftime("下次：%m-%d %H:%M:%S", time.localtime(self.task["nextRunTime"])))
+
+        if self.task["lastRunTime"] == 0:
+            self.LastRunTimeLabel.setText("上次：尚未运行")
+        else:
+            self.LastRunTimeLabel.setText(time.strftime("上次：%m-%d %H:%M:%S", time.localtime(self.task["lastRunTime"])))
+
+        if self.task["nextRunTime"] == 0:
+            self.NextRunTimeLabel.setText("下次：尚未计划")
+        else:
+            self.NextRunTimeLabel.setText(time.strftime("下次：%m-%d %H:%M:%S", time.localtime(self.task["nextRunTime"])))
+
+        self.statusLable.setText("状态："+self.task["status"])
+
 
     def checkEvent(self):
         self.parentWindow.showTaskDetail(self.task)

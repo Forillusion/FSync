@@ -27,4 +27,11 @@ def tryRequests(func, **args):
 def localPathToCloud(localPath):
     return localPath.replace(v.localRoot, v.cloudRoot)
 
+def removeLastSlash(path):
+    if path == "\\":
+        return path
+    if path[-1] == "\\":
+        return path[:-1]
+    return path
+
 splitPath = lambda x: [i for i in x.split("\\") if i != ""]
