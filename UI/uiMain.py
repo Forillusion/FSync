@@ -1,8 +1,9 @@
 import sys
+import threading
 
 from PySide6.QtGui import QIcon, QColor
 from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 
 from UI.config import cfg
 from UI.failList import failListWindow
@@ -13,6 +14,7 @@ from qfluentwidgets import FluentWindow, FluentIcon as FIF, NavigationItemPositi
 from UI.setting import SettingWindow
 
 from task import loadTask
+from var import v
 
 
 # designer()
@@ -43,6 +45,7 @@ class window(FluentWindow):
         self.setWindowTitle("Demo")
         self.setWindowIcon(QIcon(":/qfluentwidgets/images/logo.png"))
         self.navigationInterface.setAcrylicEnabled(True)  # 设置导航界面背景为亚克力效果
+        self.resize(800, 600)
 
         # # 添加子界面
         self.upListWindow = upListWindow(self)
@@ -62,7 +65,6 @@ class window(FluentWindow):
         self.addSubInterface(self.settingWindow, FIF.SETTING, '设置', NavigationItemPosition.BOTTOM)
 
         self.navigationInterface.setMinimumExpandWidth(16000)
-        self.resize(800, 600)
         # screen = QDesktopWidget().screenGeometry()
         # size = self.geometry()
         # self.setGeometry(int( (screen.width() - size.width()) / 2), int((screen.height() - size.height()) / 2),700,500)
@@ -74,6 +76,17 @@ class window(FluentWindow):
 
     def closeEvent(self, event):
         event.accept()
+
+def startUI():
+    w = window()
+    while w.isVisible():
+        w.runWindow()
+
+    v.mainQuitFlag=True
+
+def startUIThread():
+    UIThread = threading.Thread(target=startUI)
+    UIThread.start()
 
 # while w.isVisible():
 #     w.runWindow()

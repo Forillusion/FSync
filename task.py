@@ -31,9 +31,9 @@ def savaTask():
         f.write(json.dumps(v.taskList, ensure_ascii=False))
 
 
-def newTask(path):
+def newTask():
     defalutTask = {
-        "name": "E:",
+        "name": "",
         "enabled": True,
         "localPath": r"",
         "cloudPath": r"",
@@ -67,8 +67,14 @@ def newTask(path):
         "nextRunTime": 0,
         "logs": []
     }
-    v.taskList.append(defalutTask)
+    # v.taskList.append(defalutTask)
+    return defalutTask
 
+def addTask(task):
+    v.taskList.append(task)
+
+def updateTask(task):
+    setNextRunTime(task)
 
 def deleteTask(task):
     v.taskList.remove(task)
@@ -155,13 +161,15 @@ def checkNoneNextRunTime():
 def checkTask(start=0):
     if start == 1:
         for x in v.taskList:
-            if checkStartSecheduled(x):
-                x["status"] = "waiting"
+            if x["enabled"]:
+                if checkStartSecheduled(x):
+                    x["status"] = "waiting"
     else:
         for x in v.taskList:
-            print(x["name"], checkTaskRunTime(x))
-            if checkTaskRunTime(x):
-                x["status"] = "waiting"
+            if x["enabled"]:
+                print(x["name"], checkTaskRunTime(x))
+                if checkTaskRunTime(x):
+                    x["status"] = "waiting"
 
 def checkInterruptTask():
     for x in v.taskList:

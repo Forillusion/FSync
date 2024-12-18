@@ -34,6 +34,7 @@ class Var(metaclass=VarMeta):  # 使用 SingletonMeta 作为元类来定义一�
     upThreadIdle = False
     checkThreadIdle = False
     upThreadQuitFlag = False
+    mainQuitFlag = False
 
     upSteam = multiprocessing.Queue()
     controlSteam = multiprocessing.Queue()
@@ -102,7 +103,7 @@ class Var(metaclass=VarMeta):  # 使用 SingletonMeta 作为元类来定义一�
 #     "runCount": 0,
 #     "realTimeLogs": [],
 #     "scheduled": {
-#       "type":"start|time|interval",
+#       "type":"none|start|time|interval",
 #         ...
 #     },
 #     "status": "none|waiting|running|finished|failed",

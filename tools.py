@@ -27,5 +27,4 @@ def tryRequests(func, **args):
 def localPathToCloud(localPath):
     return localPath.replace(v.localRoot, v.cloudRoot)
 
-
 splitPath = lambda x: [i for i in x.split("\\") if i != ""]

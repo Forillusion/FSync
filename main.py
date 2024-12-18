@@ -6,7 +6,7 @@ from taskThread import taskThread
 import threading
 import multiprocessing
 
-from UI.uiMain import window
+from UI.uiMain import window, startUIThread
 from var import v
 
 # 1.读取文件
@@ -44,15 +44,14 @@ if __name__ == '__main__':
     startTaskThread()
     checkNoneNextRunTime()
     checkInterruptTask()
-
-    w = window()
+    startUIThread()
     lastTime=0
-    while w.isVisible():
-        w.runWindow()
+    while not v.mainQuitFlag:
         if time()-lastTime>=1:
             lastTime=time()
             checkTask()
             savaTask()
+        sleep(0.1)
 
     v.upThreadQuitFlag=True
     v.taskThreadQuitFlag=True
