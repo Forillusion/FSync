@@ -27,4 +27,4 @@ class Config(QConfig):
     language = OptionsConfigItem("MainWindow", "Language", Language.AUTO, OptionsValidator(Language), LanguageSerializer(), restart=True)
 
 cfg = Config()
-qconfig.load('UI\config.json', cfg)
+qconfig.load('UI/config.json', cfg)

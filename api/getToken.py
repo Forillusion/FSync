@@ -5,8 +5,8 @@ import time
 from tools import tryRequests
 
 host = "https://open-api.123pan.com"
-AKSKPath = r"api\AKSK.txt"
-tokenPath = r"api\Token.txt"
+AKSKPath = r"api/AKSK.txt"
+tokenPath = r"api/Token.txt"
 
 
 def readAKSK():

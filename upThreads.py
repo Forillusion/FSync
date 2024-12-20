@@ -24,7 +24,6 @@ def preThread():
     cloudRoot = v.cloudRoot
     localData = v.localData
     cloudData = v.cloudData
-
     finish = v.finish
 
     upSteam = v.upSteam
@@ -34,12 +33,14 @@ def preThread():
     def preCreateFolder():  # 创建文件夹
         code, dirID = findFloaderID(current["path"])
         if code != 0:
-            console(1, f"{current['fillName']} 文件夹创建失败")
+            console(1, f"\033[31m{current['fileName']} 文件夹创建失败\033[0m")
             reUpQueue.put(current)
+            return
 
-        console(1, f"{current['fillName']} 文件夹创建成功")
+        console(1, f"\033[32m{current['fileName']} 文件夹创建成功\033[0m")
         updataBothData(current["path"], "create folder", 0, dirID)
         finishQueue.append(current)
+        v.finishQueueChangeFlag = True
         finish["createFolder"] += 1
 
     def preDeleteFolder():  # 删除文件夹
@@ -48,11 +49,14 @@ def preThread():
             code = deleteFile(dirID)
 
         if code != 0:
-            console(1, f"{current['fillName']} 删除云盘文件夹失败")
+            console(1, f"\033[31m{current['fileName']} 删除云盘文件夹失败\033[0m")
             reUpQueue.put(current)
-        console(1, f"{current['fillName']} 删除云盘文件夹成功")
+            return
+
+        console(1, f"\033[32m{current['fileName']} 删除云盘文件夹成功\033[0m")
         updataBothData(current["path"], "delete folder")
         finishQueue.append(current)
+        v.finishQueueChangeFlag = True
         finish["deleteFolder"] += 1
 
     def preDeleteFile():  # 删除文件
@@ -61,16 +65,18 @@ def preThread():
             code = deleteFile(fileID)
 
         if code != 0:
-            console(1, f"{current['fillName']} 删除云盘文件失败")
+            console(1, f"\033[31m{current['fileName']} 删除云盘文件失败\033[0m")
             reUpQueue.put(current)
+            return
 
-        console(1, f"{current['fillName']} 删除云盘文件成功")
+        console(1, f"\033[32m{current['fileName']} 删除云盘文件成功\033[0m")
         updataBothData(current["path"], "delete file")
-        sleep(0.5)
+        # sleep(0.5)
         if current["status"] == "update file":
             current["status"] = "update file+"
         else:
             finishQueue.append(current)
+            v.finishQueueChangeFlag = True
             finish["deleteFiles"] += 1
 
     def preCreateFile():  # 创建文件
@@ -84,21 +90,25 @@ def preThread():
             code, preuploadID, reuse, sliceSize, fileID = createFile(current["parentFileId"], fileName, md5, size)
 
         if code != 0:
-            console(1, f"{current['fillName']} 创建文件失败")
+            console(1, f"\033[31m{current['fileName']} 创建文件失败\033[0m")
             reUpQueue.put(current)
+            if code == 1:
+                console(1, f"\033[31m{current['fileName']} 文件已存在\033[0m")
+                preDeleteFile()
             return
 
         current["reuse"] = reuse
         if reuse:
             updataBothData(current["path"], "create file", current["time"], fileID)
-            console(1, f"\033[32m{current["fillName"]} 秒传成功\033[0m")
+            console(1, f"\033[32m{current['fileName']} 秒传成功\033[0m")
             finishQueue.append(current)
+            v.finishQueueChangeFlag = True
             finish["uploadSize"] += current["size"]
             if current["status"] == "create file":
                 finish["createFiles"] += 1
             else:
                 finish["updateFiles"] += 1
-            sleep(0.5)
+            # sleep(0.5)
         else:
             current["preuploadID"] = preuploadID
             current["sliceSize"] = sliceSize
@@ -116,7 +126,7 @@ def preThread():
                         sliceQueue.append({"path": current["path"], "clean": True})
                     break
 
-                console(1, f"{slice['fillName']} 分片 {slice["currentSlice"]} 发送到分片队列")
+                console(1, f"{slice['fileName']} 分片 {slice['currentSlice']} 发送到分片队列")
                 sliceQueue.append(slice)
                 sleep(1)
 
@@ -124,30 +134,40 @@ def preThread():
         while not reUpQueue.empty():
             v.preThreadIdle = False
             get = reUpQueue.get()
-            console(1, f"重新上传队列获取到文件 {get['fillName']}")
+            console(1, f"重新上传队列获取到文件 {get['fileName']}")
             if get["tryTime"] < v.maxTryTime:
-                console(1, f"{get['fillName']} 重试次数 {get['tryTime']}")
+                console(1, f"{get['fileName']} 重试次数 {get['tryTime']}")
                 upQueue.append(get)
+                v.upQueueChangeFlag = True
+            else:
+                console(1, f"{get['fileName']} 重试次数超过 {v.maxTryTime} 次，加入失败队列")
+                failQueue.append(get)
+                v.failQueueChangeFlag = True
 
         if len(upQueue) > 0 and len(sliceQueue) < 1:
             v.preThreadIdle = False
 
             v.currentHandle = current = upQueue[0]
             upQueue.pop(0)
-            console(1, f"获取到新文件 {current['fillName']} {current["status"]} ,剩余{len(upQueue)}个文件")
+            v.upQueueChangeFlag = True
+            console(1, f"获取到新文件 {current['fileName']} {current['status']} ,剩余{len(upQueue)}个文件")
             current["tryTime"] += 1
 
-            if current["status"] == "create folder":
-                preCreateFolder()
+            try:
+                if current["status"] == "create folder":
+                    preCreateFolder()
 
-            if current["status"] == "delete file" or current["status"] == "update file":
-                preDeleteFile()
+                if current["status"] == "delete file" or current["status"] == "update file":
+                    preDeleteFile()
 
-            if current["status"] == "delete folder":
-                preDeleteFolder()
+                if current["status"] == "delete folder":
+                    preDeleteFolder()
 
-            if current["status"] == "create file" or current["status"] == "update file+":
-                preCreateFile()
+                if current["status"] == "create file" or current["status"] == "update file+":
+                    preCreateFile()
+            except Exception as e:
+                console(1, f"\033[31m发生错误：{e}\033[0m")
+                reUpQueue.put(current)
 
             v.currentHandle = None
 
@@ -180,24 +200,25 @@ def upThread():
             v.upThreadIdle = False
             v.currentUpLoad = current = sliceQueue[0]
             sliceQueue.pop(0)
-            console(2, f"获取到分片 {current['fillName']} 分片 {current['currentSlice']}")
+            console(2, f"获取到分片 {current['fileName']} 分片 {current['currentSlice']}")
 
             if "clean" in current:
                 cleanFile = current["path"]
             if current["path"] == cleanFile:
-                console(2, f"{current['fillName']} 上传失败，已重新加入上传队列 upQueue")
+                console(2, f"{current['fileName']} 上传失败，已重新加入上传队列 upQueue")
                 continue
 
             cleanFile = ""
             tryTime = 0
-            while True:
+            while not v.upThreadQuitFlag:
                 tryTime += 1
 
                 upSteam.put(current)
                 status=0
-                while True:
-                    while returnSteam.empty():
+                while not v.upThreadQuitFlag:
+                    while returnSteam.empty() and not v.upThreadQuitFlag:
                         sleep(0.1)
+                    sleep(0.1)
                     status = returnSteam.get()
                     if "totalProgress" in status:
                         current["totalProgress"] = status["totalProgress"]
@@ -207,18 +228,20 @@ def upThread():
                         break
 
                 if status == 200:
-                    console(2, f"{current['fillName']} 分片 {current['currentSlice']} 上传完成")
-                    finish["uploadSize"] += current["sliceSize"]
+                    console(2, f"{current['fileName']} 分片 {current['currentSlice']} 上传完成")
 
                     if current["currentSlice"] == current["totalSlice"]:
-                        console(2, f"{current['fillName']} 全部分片上传完成，加入校验队列")
+                        finish["uploadSize"] += current["size"]-current["sliceSize"]*(current["totalSlice"]-1)
+                        console(2, f"{current['fileName']} 全部分片上传完成，加入校验队列")
                         checkQueue.put(current)
+                    else:
+                        finish["uploadSize"] += current["sliceSize"]
                     break
                 else:
-                    console(2, f"{current['fillName']} 分片 {current['currentSlice']} 上传失败")
+                    console(2, f"{current['fileName']} 分片 {current['currentSlice']} 上传失败")
                     if tryTime >= v.maxTryTime:
                         cleanFile = current["path"]
-                        console(2, f"{current['fillName']} 上传失败次数超过 {v.maxTryTime} 次，加入重新上传队列")
+                        console(2, f"{current['fileName']} 上传失败次数超过 {v.maxTryTime} 次，加入重新上传队列")
                         reUpQueue.put(current)
                         break
 
@@ -251,7 +274,7 @@ def checkThread():
         if not checkQueue.empty():
             v.checkThreadIdle = False
             current = checkQueue.get()
-            console(3, f"获取到校验文件 {current['fillName']}")
+            console(3, f"获取到校验文件 {current['fileName']}")
 
             code, completed, ifasync, fileID = uploadComplete(current["preuploadID"])
             if completed:
@@ -264,14 +287,15 @@ def checkThread():
             if code == 0:
                 updataBothData(current["path"], "create file", current["time"], fileID)
                 finishQueue.append(current)
+                v.finishQueueChangeFlag = True
                 # finish["uploadSize"] += current["size"]
                 if current["status"] == "create file":
                     finish["createFiles"] += 1
                 else:
                     finish["updateFiles"] += 1
-                console(3, f"\033[32m{current["fillName"]}上传完成\033[0m")
+                console(3, f"\033[32m{current['fileName']}上传完成\033[0m")
             else:
-                console(3, f"\033[31m{current["fillName"]}上传失败\033[0m")
+                console(3, f"\033[31m{current['fileName']}上传失败\033[0m")
                 reUpQueue.put(current)
         else:
             # print("thread3: 上传队列为空或分片队列已满")

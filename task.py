@@ -11,7 +11,7 @@ def loadTask():
     folders = splitPath(v.taskDataPath)
     current = ""
     for folder in folders[:-1]:
-        current += folder + "\\"
+        current += folder + "/"
         if not os.path.exists(current):
             os.mkdir(current)
 
@@ -72,13 +72,19 @@ def newTask():
 
 def addTask(task):
     v.taskList.append(task)
+    savaTask()
 
 def updateTask(task):
     setNextRunTime(task)
 
 def deleteTask(task):
     v.taskList.remove(task)
+    savaTask()
 
+def triggerTask(task):
+    print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),task["name"], "任务触发")
+    task["status"] = "waiting"
+    savaTask()
 
 def checkTaskScheduled(task, start=0):
     # if task["scheduled"]["type"]=="none":
@@ -141,6 +147,7 @@ def setNextRunTime(task):
     if task["scheduled"]["type"] == "interval":
         task["nextRunTime"] = int(time.time() + task["scheduled"]["interval"])
 
+    savaTask()
 
 # "none":
 # "start": 当程序启动时运行
@@ -163,13 +170,13 @@ def checkTask(start=0):
         for x in v.taskList:
             if x["enabled"]:
                 if checkStartSecheduled(x):
-                    x["status"] = "waiting"
+                    triggerTask(x)
     else:
         for x in v.taskList:
             if x["enabled"]:
-                print(x["name"], checkTaskRunTime(x))
+                # print(x["name"], checkTaskRunTime(x))
                 if checkTaskRunTime(x):
-                    x["status"] = "waiting"
+                    triggerTask(x)
 
 def checkInterruptTask():
     for x in v.taskList:

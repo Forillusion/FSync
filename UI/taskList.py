@@ -6,7 +6,7 @@ from qfluentwidgets import ScrollArea, FlowLayout, PushButton, CardWidget, BodyL
     TransparentTogglePushButton, SwitchButton
 
 from UI.config import cfg
-from task import newTask, addTask, updateTask, deleteTask
+from task import newTask, addTask, updateTask, deleteTask, triggerTask
 from tools import removeLastSlash
 from var import v
 from UI.taskDetail import taskDetailMsgBox
@@ -56,6 +56,8 @@ class taskListWindow(ScrollArea):
             task["enabled"] = w.enabledButton.isChecked()
             task["localPath"] = removeLastSlash(w.localPathLine.text())
             task["cloudPath"] = removeLastSlash(w.cloudPathLine.text())
+            # task["localPath"] = w.localPathLine.text()
+            # task["cloudPath"] = w.cloudPathLine.text()
             task["deleteCloudFile"] = w.deleteButton.isChecked()
             task["scheduled"]["type"] = w.scheduledBox.currentData()
             if task["scheduled"]["type"] == "time":
@@ -128,7 +130,7 @@ class taskBlock(CardWidget):
 
         self.setObjectName("taskBlock")
         # self.setStyleSheet("#taskBlock{border-radius:10px;background-color:white;}")#border:1px solid #d3d3d3;
-        self.setFixedSize(320, 150)
+        self.setFixedSize(320, 180)
         self.setContentsMargins(20, 20, 20, 20)
         self.layout = QGridLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -156,10 +158,15 @@ class taskBlock(CardWidget):
         self.layout.addWidget(self.NextRunTimeLabel, 2, 1, 1, 1)
 
         self.statusLable = BodyLabel(self)
-        self.layout.addWidget(self.statusLable, 3, 0, 1, 2)
+        self.layout.addWidget(self.statusLable, 3, 0, 1, 1)
+
+        self.triggerButton = PushButton("手动触发")
+        self.layout.addWidget(self.triggerButton, 3, 1, 1, 1)
+
 
         self.update()
         self.clicked.connect(self.checkEvent)
+        self.triggerButton.clicked.connect(self.triggerEvent)
 
 
     def update(self):
@@ -191,3 +198,6 @@ class taskBlock(CardWidget):
     def checkEvent(self):
         self.parentWindow.showTaskDetail(self.task)
         # taskDetialWindow = taskDetailWindow(self.task,self.parent())
+
+    def triggerEvent(self):
+        triggerTask(self.task)

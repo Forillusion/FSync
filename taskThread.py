@@ -1,13 +1,13 @@
 import json
 import multiprocessing
 import threading
-from time import sleep, time
+import time
 
 import upThreads as up
 from compare import compareData, generateQueue
 from database import getCloudListToData
 from scanLocalPath import scanLocalPath
-from task import setNextRunTime
+from task import setNextRunTime, savaTask
 from upProcess import upProcess
 from var import v
 
@@ -18,6 +18,20 @@ def startUp():
     v.checkThreadIdle = False
     v.upThreadQuitFlag = False
 
+    # preThread = threading.Thread(target=up.preThread, args=(v.preThreadIdle,v.currentHandle,))
+    # preThread.start()
+    # upThread = threading.Thread(target=up.upThread, args=(v.upThreadIdle,v.currentUpLoad,))
+    # upThread.start()
+    # checkThread = threading.Thread(target=up.checkThread, args=(v.checkThreadIdle,))
+    # checkThread.start()
+
+    # preThread2 = threading.Thread(target=up.preThread, args=(v.preThreadIdle2,v.currentHandle2,))
+    # preThread2.start()
+    # upThread2 = threading.Thread(target=up.upThread, args=(v.upThreadIdle2,v.currentUpLoad2,))
+    # upThread2.start()
+    # checkThread2 = threading.Thread(target=up.checkThread, args=(v.checkThreadIdle2,))
+    # checkThread2.start()
+
     preThread = threading.Thread(target=up.preThread)
     preThread.start()
     upThread = threading.Thread(target=up.upThread)
@@ -25,20 +39,33 @@ def startUp():
     checkThread = threading.Thread(target=up.checkThread)
     checkThread.start()
 
+    # preThread2 = threading.Thread(target=up.preThread)
+    # preThread2.start()
+    # upThread2 = threading.Thread(target=up.upThread)
+    # upThread2.start()
+    # checkThread2 = threading.Thread(target=up.checkThread)
+    # checkThread2.start()
+
     p = multiprocessing.Process(target=upProcess, args=(v.upSteam, v.controlSteam, v.returnSteam,),
                                 name='UI_Process')
     p.start()
-    while not v.upThreadQuitFlag:
-        # print(v.preThreadIdle, v.upThreadIdle, v.checkThreadIdle, v.upThreadQuitFlag)
+    mainThread = threading.main_thread()
+    while not v.upThreadQuitFlag and mainThread.is_alive() and preThread.is_alive() and upThread.is_alive() and checkThread.is_alive():
+
         if (len(v.upQueue) == 0 and v.reUpQueue.empty() and len(v.sliceQueue) == 0
                 and v.checkQueue.empty() and v.preThreadIdle and v.upThreadIdle and v.checkThreadIdle):
+            # if (len(v.upQueue) == 0 and v.reUpQueue.empty() and len(v.sliceQueue) == 0
+            #         and v.checkQueue.empty() and v.preThreadIdle and v.upThreadIdle and v.checkThreadIdle
+            #         and v.preThreadIdle2 and v.upThreadIdle2 and v.checkThreadIdle2):
+
             v.upThreadQuitFlag = True
             v.controlSteam.put("quit")
 
-            preThread.join()
-            upThread.join()
-            checkThread.join()
-        sleep(1)
+        time.sleep(1)
+
+    preThread.join()
+    upThread.join()
+    checkThread.join()
 
 
 def createTestTask():
@@ -86,7 +113,7 @@ def createTestTask():
 
 
 def beforeRunTask():
-    v.cTask["currentStartTime"] = int(time())
+    v.cTask["currentStartTime"] = int(time.time())
     v.cTask["runCount"] += 1
     v.cTask["status"] = "running"
     v.total = {
@@ -105,7 +132,7 @@ def beforeRunTask():
         "deleteFiles": 0,
         "uploadSize": 0,
     }
-    v.cTask["lastRunTime"] = int(time())
+    v.cTask["lastRunTime"] = int(time.time())
     # todo: v.cTask["nextRunTime"]
 
 
@@ -146,9 +173,12 @@ def startTask(task):
 
     v.scanData = scanLocalPath(v.localRoot)
 
-    print("云盘数据库：", json.dumps(v.cloudData))
-    print("本地数据库：", json.dumps(v.localData))
-    print("扫描数据库：", json.dumps(v.scanData))
+    # print("云盘数据库：", json.dumps(v.cloudData))
+    # print("本地数据库：", json.dumps(v.localData))
+    # print("扫描数据库：", json.dumps(v.scanData))
+
+    # with open("list.json","w") as f:
+    #     f.write(json.dumps(v.scanData))
 
     A, B, C = compareData(v.localData, v.scanData, v.localRoot)
     v.upQueue = generateQueue(A, B, C)
@@ -160,21 +190,26 @@ def startTask(task):
     print(B)
     print("需要删除的文件:")
     print(C)
-    print("任务队列:")
 
-    for x in v.upQueue:
-        print(json.dumps(x))
+    # print("任务队列:")
+    # for i in range(min(len(v.upQueue),v.maxListCount)):
+    #     print(json.dumps(v.upQueue[i]))
 
-    sleep(5)
     startUp()
+
     afterRunTask()
-    print(v.cTask["name"], "任务结束")
+    savaTask()
+    v.upQueueChangeFlag = True
+    v.finishQueueChangeFlag = True
+    v.failQueueChangeFlag = True
+    print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), v.cTask["name"], "任务结束")
     v.cTask = None
 
 
 def taskThread():
-    while not v.taskThreadQuitFlag:
+    mainThread = threading.main_thread()
+    while not v.taskThreadQuitFlag and mainThread.is_alive():
+        time.sleep(1)
         for x in v.taskList:
             if x["status"] == "waiting" or x["status"] == "interrupt":
                 startTask(x)
-        sleep(1)

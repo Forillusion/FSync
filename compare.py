@@ -13,13 +13,13 @@ def recursionCompareData(localData, scanData, path=''):
         createQueue = []
         for key in scanData:  # 遍历扫描数据库，处理扫描数据库有而本地数据库没有的文件（创建）
             if v.timeKey in scanData[key]:  # 文件
-                createQueue.append((path + '\\' + key, scanData[key][v.timeKey]))
-                v.totalStatus["createFiles"] += 1
-                v.totalStatus["uploadSize"] += os.path.getsize(path + '\\' + key)
+                createQueue.append((path + '/' + key, scanData[key][v.timeKey]))
+                v.total["createFiles"] += 1
+                v.total["uploadSize"] += os.path.getsize(path + '/' + key)
             else:   # 文件夹
-                createQueue.append((path + '\\' + key, 0))
-                v.totalStatus["createFolder"] += 1
-                subCreate = recursionCreateFile(scanData[key], path + '\\' + key) # 递归扫描子文件夹
+                createQueue.append((path + '/' + key, 0))
+                v.total["createFolder"] += 1
+                subCreate = recursionCreateFile(scanData[key], path + '/' + key) # 递归扫描子文件夹
                 createQueue.extend(subCreate)
         return createQueue
 
@@ -28,21 +28,21 @@ def recursionCompareData(localData, scanData, path=''):
         if key not in scanData:  # 如果本地数据库的key不在扫描数据库中（删除）
             if v.cTask["deleteCloudFile"]:  # 根据任务设置，是否删除云盘文件
                 if v.timeKey in localData[key]:  # 文件
-                    deleteQueue.append((path + '\\' + key, -1))
+                    deleteQueue.append((path + '/' + key, -1))
                     v.total["deleteFiles"] += 1
                 else:  # 文件夹
-                    deleteQueue.append((path + '\\' + key, 0))
+                    deleteQueue.append((path + '/' + key, 0))
                     v.total["deleteFolder"] += 1
 
         else:
             if v.timeKey in localData[key]:  # 文件
                 if localData[key][v.timeKey] != scanData[key][v.timeKey]:  # 本地文件和扫描文件的时间戳不同（更新）
-                    updateQueue.append((path + "\\" + key, scanData[key][v.timeKey]))
+                    updateQueue.append((path + "/" + key, scanData[key][v.timeKey]))
                     v.total["updateFiles"] += 1
-                    v.total["uploadSize"] += os.path.getsize(path + '\\' + key)
+                    v.total["uploadSize"] += os.path.getsize(path + '/' + key)
             else:
                 subCreat, subUpdate, subDelete = recursionCompareData(localData[key], scanData[key],
-                                                                      path + '\\' + key)  # 递归扫描子文件夹
+                                                                      path + '/' + key)  # 递归扫描子文件夹
                 createQueue.extend(subCreat)
                 updateQueue.extend(subUpdate)
                 deleteQueue.extend(subDelete)
@@ -50,13 +50,13 @@ def recursionCompareData(localData, scanData, path=''):
     for key in scanData:  # 遍历扫描数据库，处理扫描数据库有而本地数据库没有的文件（创建）
         if key not in localData:
             if v.timeKey in scanData[key]:  # 文件
-                createQueue.append((path + "\\" + key, scanData[key][v.timeKey]))
+                createQueue.append((path + "/" + key, scanData[key][v.timeKey]))
                 v.total["createFiles"] += 1
-                v.total["uploadSize"] += os.path.getsize(path + '\\' + key)
+                v.total["uploadSize"] += os.path.getsize(path + '/' + key)
             else:   # 文件夹
-                createQueue.append((path + "\\" + key, 0))
+                createQueue.append((path + "/" + key, 0))
                 v.total["createFolder"] += 1
-                subCreat = recursionCreateFile(scanData[key], path + "\\" + key)  # 递归扫描子文件夹
+                subCreat = recursionCreateFile(scanData[key], path + "/" + key)  # 递归扫描子文件夹
                 createQueue.extend(subCreat)
 
     return createQueue, updateQueue, deleteQueue
@@ -100,7 +100,7 @@ def generateQueue(createQueue, updateQueue, deleteQueue):
             upQueue.append({"path": key[0], "tryTime": 0, "status": "delete file"})
 
     for key in upQueue:
-        key["fillName"] = os.path.basename(key["path"])
+        key["fileName"] = os.path.basename(key["path"])
     return upQueue
 
 # upQueue.append({"path":r"E:\Python\ForillusionSync\0","tryTime":0,"status":"new file"})

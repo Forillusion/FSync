@@ -30,5 +30,5 @@ class DataWithCallback:
     def progressCallback(self,upsize):
         up=self.sliceSize*(self.currentSlice-1)+upsize
         p=up/self.totalSize*100
-        while self.returnSteam.empty():
+        if self.returnSteam.empty():
             self.returnSteam.put({"totalProgress":p})

@@ -15,6 +15,8 @@ def tryRequests(func, **args):
             if code != 0:
                 print(args)
                 print(response.text)
+            if code == 1:
+                break
             if code == 429:
                 time.sleep(1.2)
         except Exception as e:
@@ -28,10 +30,10 @@ def localPathToCloud(localPath):
     return localPath.replace(v.localRoot, v.cloudRoot)
 
 def removeLastSlash(path):
-    if path == "\\":
+    if path == "/":
         return path
-    if path[-1] == "\\":
+    if path[-1] == "/":
         return path[:-1]
     return path
 
-splitPath = lambda x: [i for i in x.split("\\") if i != ""]
+splitPath = lambda x: [i for i in x.split("/") if i != ""]

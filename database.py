@@ -11,7 +11,7 @@ def loadDB(path):
     folders = splitPath(path)
     current = ""
     for folder in folders[:-1]:
-        current += folder + "\\"
+        current += folder + "/"
         if not os.path.exists(current):
             os.mkdir(current)
 
@@ -40,6 +40,11 @@ def saveDB(path, data):
     with open(path, "w", encoding="utf-8") as f:
         f.write(json.dumps(data, ensure_ascii=False))
 
+def saveCloudData():
+    saveDB("db/cloudData.json", v.cloudData)
+
+def saveLocalData():
+    saveDB("db/localData.json", v.localData)
 
 def updateCloudData(path, status, id=0, autoSave=True):
     folders = splitPath(path)
@@ -64,7 +69,7 @@ def updateCloudData(path, status, id=0, autoSave=True):
         del current[folders[-1]]
 
     if autoSave:
-        saveDB("db/cloudData.json", v.cloudData)
+        saveCloudData()
 
 
 def updataLocalData(path, status, time=0, autoSave=True):
@@ -91,7 +96,7 @@ def updataLocalData(path, status, time=0, autoSave=True):
         del current[folders[-1]]
 
     if autoSave:
-        saveDB("db/localData.json", v.localData)
+        saveLocalData()
 
 
 def updataBothData(localPath, status, time=0, id=0, autoSave=True):

@@ -5,6 +5,8 @@ from var import v
 
 def recursionLocalPath(path):
     data = {}
+    if path[-1]==":":
+        path+="/"
     if os.path.isdir(path):
         for i in os.listdir(path):
             if i != "$RECYCLE.BIN":
@@ -21,7 +23,7 @@ def recursionLocalPath(path):
 
 def scanLocalPath(localRoot):
     # 传入需要扫描的本地根目录文件夹路径，返回扫描结果
-    folders = localRoot.split("\\")
+    folders = localRoot.split("/")
     folders = [x for x in folders if x != ""]
     data = {}
     current = data
@@ -33,7 +35,7 @@ def scanLocalPath(localRoot):
 
 # def scanLocalPathWithoutRecursion(localRoot):
 #     # 传入需要扫描的本地根目录文件夹路径，返回扫描结果
-#     folders=localRoot.split("\\")
+#     folders=localRoot.split("/")
 #     folders=[x for x in folders if x!=""]
 #     data={}
 #     current=data

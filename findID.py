@@ -1,4 +1,5 @@
 from api.createFolder import createFolder
+from database import saveDB, saveCloudData, getCloudListToData
 from tools import localPathToCloud, splitPath
 from time import sleep
 
@@ -6,22 +7,23 @@ from var import v
 
 
 def findFloaderID(path):
-    cloudPath= localPathToCloud(path)
+    cloudPath = localPathToCloud(path)
     # 给出一个本地文件夹路径，转换为云盘文件夹路径，然后返回文件夹的id，如果不存在则创建,并写入数据库
-    folders=splitPath(cloudPath)
-    current=v.cloudData
-    code=0
+    folders = splitPath(cloudPath)
+    current = v.cloudData
+    code = 0
     for folder in folders:
         # print("folder",folder)
         if folder not in current:
-            code,dirID= createFolder(current[v.idKey], folder)
-            if code!=0:
-                return code,0
-            current[folder]={v.idKey:dirID}
+            code, dirID = createFolder(current[v.idKey], folder)
+            if code != 0:
+                return code, 0
+            current[folder] = {v.idKey: dirID}
             sleep(0.5)
-        current=current[folder]
+            saveCloudData()
+        current = current[folder]
 
-    return code,current[v.idKey]
+    return code, current[v.idKey]
 
 
 # def getCloudFloderID(path):
@@ -32,20 +34,23 @@ def findFloaderID(path):
 
 def findFileID(path):
     # 给出一个文件路径，返回文件的id，会创建文件夹并写入数据库，但不会创建文件，如果不存在则返回-2
-    cloudPath= localPathToCloud(path)
-    folders=splitPath(cloudPath)
-    folders=folders
+    cloudPath = localPathToCloud(path)
+    folders = splitPath(cloudPath)
+    folders = folders
 
     # print(folders)
-    current=v.cloudData
-    code=0
+    current = v.cloudData
+    code = 0
     for folder in folders:
         # print("folder",folder)
         if folder not in current:
-            return -2,0
-        current=current[folder]
+            getCloudListToData(path)
+        if folder not in current:
+            return -2, 0
+        current = current[folder]
 
-    return code,current[v.idKey]
+    return code, current[v.idKey]
+
 
 # def findFileID(path):
 #     # 给出一个文件路径，返回文件的id，会创建文件夹并写入数据库，但不会创建文件，如果不存在则返回-2
@@ -79,23 +84,33 @@ def findFileID(path):
 
 def findParentID(path):
     # 给出一个文件路径，返回文件的父文件夹的id，会创建文件夹并写入数据库
-    cloudPath= localPathToCloud(path)
-    folders=splitPath(cloudPath)
-    filename=folders[-1]
-    folders=folders[:-1]
+    # print("path:",path)
+    cloudPath = localPathToCloud(path)
+    folders = splitPath(cloudPath)
 
-    current=v.cloudData
-    code=0
+    filename = folders[-1]
+    folders = folders[:-1]
+
+    current = v.cloudData
+    code = 0
     for folder in folders:
         if folder not in current:
-            code,dirID= createFolder(current[v.idKey], folder)
-            if code!=0:
-                return code,0
-            current[folder]={v.idKey:dirID}
+            code, dirID = createFolder(current[v.idKey], folder)
+            if code != 0:
+                return code, 0
+            current[folder] = {v.idKey: dirID}
             sleep(0.5)
-        current=current[folder]
+            saveCloudData()
+        current = current[folder]
 
-    return code,current[v.idKey]
+    # print("current:",current)
+    try:
+        return code, current[v.idKey]
+    except Exception as e:
+        print(path)
+        print(current)
+        print("findParentID error:", e)
+        exit(0)
 
 # def getParentID(path):
 #     path= localPathToCloud(path)

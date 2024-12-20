@@ -1,12 +1,15 @@
+import atexit
+import os
+import sys
 from time import sleep,time
 
-from database import loadCloudData, loadLocalData
+from database import loadCloudData, loadLocalData, saveDB, saveCloudData, saveLocalData
 from task import loadTask, savaTask, checkNoneNextRunTime, checkTask, checkInterruptTask
 from taskThread import taskThread
 import threading
 import multiprocessing
 
-from UI.uiMain import window, startUIThread
+from UI.uiMain import startUIThread
 from var import v
 
 # 1.读取文件
@@ -26,7 +29,17 @@ from var import v
 def startTaskThread():
     taskTh = threading.Thread(target=taskThread)
     taskTh.start()
+    return taskTh
 
+def getAdmin():
+    # windows下获取管理员权限
+    if os.name == 'nt':
+        import ctypes
+        if ctypes.windll.shell32.IsUserAnAdmin():
+            return True
+        else:
+            ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
+            return False
 
 def init():
     loadCloudData()
@@ -35,27 +48,43 @@ def init():
     # createTestTask()
 
 
+def saveBothDB():
+    savaTask()
+    saveLocalData()
+    saveCloudData()
+
+
 if __name__ == '__main__':
     multiprocessing.freeze_support()
-
+    os.system("")
+    # getAdmin()
     init()
 
     checkTask(1)
-    startTaskThread()
+    atexit.register(saveBothDB)
+    taskTh=startTaskThread()
     checkNoneNextRunTime()
     checkInterruptTask()
     startUIThread()
-    lastTime=0
-    while not v.mainQuitFlag:
-        if time()-lastTime>=1:
-            lastTime=time()
-            checkTask()
-            savaTask()
-        sleep(0.1)
+    # lastTime=0
 
+    while not v.mainQuitFlag:
+        # if time()-lastTime>=1:
+        #     lastTime=time()
+        checkTask()
+        sleep(1)
+
+    print("主循环退出")
     v.upThreadQuitFlag=True
     v.taskThreadQuitFlag=True
     v.controlSteam.put("quit")
+    print("等待线程退出")
+
+    taskTh.join()
+    print("线程退出")
+    saveBothDB()
+    print("保存数据")
+
         # sleep(0.1)
 
     # print(v.total)

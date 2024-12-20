@@ -12,9 +12,9 @@ class VarMeta(type):  # 定义一个元类 SingletonMeta，它继承自 type
 class Var(metaclass=VarMeta):  # 使用 SingletonMeta 作为元类来定义一个类
     # localRoot = r"E:\test"
     # cloudRoot = r"\test"
-    cloudDataPath=r"db\cloudData.json"
-    localDataPath=r"db\localData.json"
-    taskDataPath=r"db\taskData.json"
+    cloudDataPath=r"db/cloudData.json"
+    localDataPath=r"db/localData.json"
+    taskDataPath=r"db/taskData.json"
     cloudData = {}
     localData = {}
     upQueue = []
@@ -29,12 +29,26 @@ class Var(metaclass=VarMeta):  # 使用 SingletonMeta 作为元类来定义一�
     currentHandle = None
     currentUpLoad = None
 
+    currentHandle2 = None
+    currentUpLoad2 = None
+
     maxTryTime = 3
     preThreadIdle = False
     upThreadIdle = False
     checkThreadIdle = False
+
+    preThreadIdle2 = False
+    upThreadIdle2 = False
+    checkThreadIdle2 = False
+
     upThreadQuitFlag = False
     mainQuitFlag = False
+
+    upQueueChangeFlag = False
+    finishQueueChangeFlag = False
+    failQueueChangeFlag = False
+
+    maxListCount = 1000
 
     upSteam = multiprocessing.Queue()
     controlSteam = multiprocessing.Queue()
@@ -78,8 +92,8 @@ class Var(metaclass=VarMeta):  # 使用 SingletonMeta 作为元类来定义一�
 
 # task = {
 #     "name": "E:",
-#     "localPath": "E:\\test",
-#     "cloudPath": "\\test",
+#     "localPath": "E:/test",
+#     "cloudPath": "/test",
 #     "deleteCloudFile": True,
 #     "realTimeStatus": {
 #         "total": {
