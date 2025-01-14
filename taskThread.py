@@ -9,6 +9,7 @@ from database import getCloudListToData
 from scanLocalPath import scanLocalPath
 from task import setNextRunTime, savaTask
 from upProcess import upProcess
+from rebuild import rebuildTask
 from var import v
 
 
@@ -213,3 +214,6 @@ def taskThread():
         for x in v.taskList:
             if x["status"] == "waiting" or x["status"] == "interrupt":
                 startTask(x)
+            if x["status"] == "rebuild":
+                x["status"] = "none"
+                rebuildTask(x)

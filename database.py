@@ -24,7 +24,7 @@ def loadDB(path):
 
 def loadCloudData():
     data = loadDB(v.cloudDataPath)
-    if data == "":
+    if data == "" or data == "{}":
         data = '{"' + v.idKey + '":0}'
     v.cloudData = json.loads(data)
 
