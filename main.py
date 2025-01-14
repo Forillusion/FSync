@@ -27,9 +27,8 @@ from var import v
 
 
 def startTaskThread():
-    taskTh = threading.Thread(target=taskThread)
-    taskTh.start()
-    return taskTh
+    v.taskTh = threading.Thread(target=taskThread)
+    v.taskTh.start()
 
 def getAdmin():
     # windows下获取管理员权限
@@ -47,12 +46,11 @@ def init():
     loadTask()
     # createTestTask()
 
-
-def saveBothDB():
+def saveAllDB(msg=""):
+    print(msg)
     savaTask()
     saveLocalData()
     saveCloudData()
-
 
 if __name__ == '__main__':
     multiprocessing.freeze_support()
@@ -61,29 +59,26 @@ if __name__ == '__main__':
     init()
 
     checkTask(1)
-    atexit.register(saveBothDB)
-    taskTh=startTaskThread()
+    # atexit.register(saveAllDB, "atexit")
+    startTaskThread()
     checkNoneNextRunTime()
     checkInterruptTask()
     startUIThread()
-    # lastTime=0
 
     while not v.mainQuitFlag:
-        # if time()-lastTime>=1:
-        #     lastTime=time()
+        # v.mainQuitFlag = True
         checkTask()
         sleep(1)
+    # print("主循环退出")
 
-    print("主循环退出")
     v.upThreadQuitFlag=True
     v.taskThreadQuitFlag=True
     v.controlSteam.put("quit")
-    print("等待线程退出")
 
-    taskTh.join()
-    print("线程退出")
-    saveBothDB()
-    print("保存数据")
+    # print("等待任务线程退出")
+    v.taskTh.join()
+    saveAllDB()
+    print("主线程退出")
 
         # sleep(0.1)
 

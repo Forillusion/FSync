@@ -60,7 +60,7 @@ class taskDetailMsgBox(MessageBoxBase):
         self.scheduledBox.addItem("定时", userData="time")
         self.scheduledBox.addItem("间隔", userData="interval")
         self.layout.addWidget(self.scheduledBox, 5, 1, 1, 2)
-        self.scheduledBox.currentIndexChanged.connect(self.scheduledChange)
+        # self.scheduledBox.currentIndexChanged.connect(self.scheduledChange)
 
         self.weekLable = BodyLabel("重复星期：")
         self.layout.addWidget(self.weekLable, 6, 0, 1, 1)

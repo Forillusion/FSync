@@ -1,6 +1,7 @@
 {
     "MainWindow": {
-        "Language": "Auto"
+        "Language": "Auto",
+        "SilentStart": true
     },
     "QFluentWidgets": {
         "ThemeColor": "#ffbddd9a",

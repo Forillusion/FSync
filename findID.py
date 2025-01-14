@@ -44,8 +44,10 @@ def findFileID(path):
     for folder in folders:
         # print("folder",folder)
         if folder not in current:
-            getCloudListToData(path)
+            print("id获取失败，尝试重新获取文件夹列表：",cloudPath)
+            getCloudListToData(cloudPath)
         if folder not in current:
+            print("id获取失败，重新获取文件夹失败：",cloudPath)
             return -2, 0
         current = current[folder]
 

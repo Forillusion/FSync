@@ -1,7 +1,8 @@
 from enum import Enum
 
 from PySide6.QtCore import QLocale
-from qfluentwidgets import QConfig, qconfig,RangeConfigItem,RangeValidator,OptionsConfigItem,OptionsValidator,ConfigSerializer
+from qfluentwidgets import QConfig, qconfig, RangeConfigItem, RangeValidator, OptionsConfigItem, OptionsValidator, \
+    ConfigSerializer, BoolValidator
 
 
 class Language(Enum):
@@ -25,6 +26,7 @@ class LanguageSerializer(ConfigSerializer):
 class Config(QConfig):
     # themeMode = Enum('ThemeMode', 'LIGHT DARK SYSTEM')
     language = OptionsConfigItem("MainWindow", "Language", Language.AUTO, OptionsValidator(Language), LanguageSerializer(), restart=True)
+    silentStart = RangeConfigItem("MainWindow", "SilentStart", False, BoolValidator())
 
 cfg = Config()
 qconfig.load('UI/config.json', cfg)

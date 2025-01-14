@@ -1,6 +1,7 @@
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QWidget, QLabel
-from qfluentwidgets import ScrollArea, ExpandLayout, SettingCardGroup, OptionsSettingCard, CustomColorSettingCard, Theme
+from qfluentwidgets import ScrollArea, ExpandLayout, SettingCardGroup, OptionsSettingCard, CustomColorSettingCard, \
+    Theme, SwitchSettingCard
 from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import setThemeColor, isDarkTheme, setTheme
 from PySide6.QtCore import Qt, Signal
@@ -38,6 +39,14 @@ class SettingWindow(ScrollArea):
             self.personalGroup
         )
         self.resetThemeColorCard()
+
+        self.silentStartCard = SwitchSettingCard(
+            icon=FIF.TRANSPARENT,
+            title="静默启动",
+            content="",
+            configItem=cfg.silentStart,
+            parent=self.personalGroup
+        )
 
         # setThemeColor("#BDDD9A")
         # self.themeColorCard.__initWidget()
@@ -88,6 +97,7 @@ class SettingWindow(ScrollArea):
         # # add cards to group
         self.personalGroup.addSettingCard(self.themeCard)
         self.personalGroup.addSettingCard(self.themeColorCard)
+        self.personalGroup.addSettingCard(self.silentStartCard)
 
 
         # add setting card group to layout

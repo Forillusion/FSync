@@ -4,13 +4,13 @@ from api.upload import uploadFileSlice
 
 
 def upProcess(upSteam, controlSteam, returnSteam):
-    upThreadQuitFlag = False
+    upProcessQuitFlag = False
     current = None
-    while not upThreadQuitFlag:
+    while not upProcessQuitFlag:
         while not controlSteam.empty():
             msg = controlSteam.get()
             if msg == "quit":
-                upThreadQuitFlag = True
+                upProcessQuitFlag = True
                 break
 
         while not upSteam.empty():

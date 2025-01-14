@@ -48,6 +48,12 @@ class Var(metaclass=VarMeta):  # 使用 SingletonMeta 作为元类来定义一�
     finishQueueChangeFlag = False
     failQueueChangeFlag = False
 
+    taskTH = None
+    preTh = None
+    upTh = None
+    checkTh = None
+    UITh = None
+
     maxListCount = 1000
 
     upSteam = multiprocessing.Queue()

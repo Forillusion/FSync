@@ -32,12 +32,12 @@ def startUp():
     # checkThread2 = threading.Thread(target=up.checkThread, args=(v.checkThreadIdle2,))
     # checkThread2.start()
 
-    preThread = threading.Thread(target=up.preThread)
-    preThread.start()
-    upThread = threading.Thread(target=up.upThread)
-    upThread.start()
-    checkThread = threading.Thread(target=up.checkThread)
-    checkThread.start()
+    v.preTh = threading.Thread(target=up.preThread)
+    v.preTh.start()
+    v.upTh = threading.Thread(target=up.upThread)
+    v.upTh.start()
+    v.checkTh = threading.Thread(target=up.checkThread)
+    v.checkTh.start()
 
     # preThread2 = threading.Thread(target=up.preThread)
     # preThread2.start()
@@ -50,7 +50,7 @@ def startUp():
                                 name='UI_Process')
     p.start()
     mainThread = threading.main_thread()
-    while not v.upThreadQuitFlag and mainThread.is_alive() and preThread.is_alive() and upThread.is_alive() and checkThread.is_alive():
+    while not v.upThreadQuitFlag and mainThread.is_alive() and v.preTh.is_alive() and v.upTh.is_alive() and v.checkTh.is_alive():
 
         if (len(v.upQueue) == 0 and v.reUpQueue.empty() and len(v.sliceQueue) == 0
                 and v.checkQueue.empty() and v.preThreadIdle and v.upThreadIdle and v.checkThreadIdle):
@@ -63,9 +63,9 @@ def startUp():
 
         time.sleep(1)
 
-    preThread.join()
-    upThread.join()
-    checkThread.join()
+    v.preTh.join()
+    v.upTh.join()
+    v.checkTh.join()
 
 
 def createTestTask():

@@ -30,20 +30,19 @@ from var import v
 class window(FluentWindow):
     def __init__(self):
         self.alive = True
-        QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough) # 设置高DPI缩放因子
-        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling) # 启用高DPI缩放
-        QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps) # 使用高DPI图标
+        QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)  # 设置高DPI缩放因子
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)  # 启用高DPI缩放
+        QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)  # 使用高DPI图标
 
         self.app = QApplication(sys.argv)
 
-        locale = cfg.get(cfg.language).value # 设置语言
-        fluentTranslator = FluentTranslator(locale) # 设置翻译
+        locale = cfg.get(cfg.language).value  # 设置语言
+        fluentTranslator = FluentTranslator(locale)  # 设置翻译
         self.app.installTranslator(fluentTranslator)
 
         super().__init__()
         self.show()
         self.initWindow()
-
 
     def initWindow(self):
         self.setWindowTitle("Demo")
@@ -56,7 +55,7 @@ class window(FluentWindow):
         self.upListWindow = upListWindow(self)
         self.finishListWindow = finishListWindow(self)
         self.failListWindow = failListWindow(self)
-        self.settingWindow=SettingWindow(self)
+        self.settingWindow = SettingWindow(self)
 
         # self.webWindow = WebWindow(self)
         # self.settingWindow = SettingWindow(self)
@@ -71,6 +70,8 @@ class window(FluentWindow):
         self.navigationInterface.setMinimumExpandWidth(16000)
 
         self.createTrayIcon()
+        if cfg.get(cfg.silentStart):
+            self.hide()
         # screen = QDesktopWidget().screenGeometry()
         # size = self.geometry()
         # self.setGeometry(int( (screen.width() - size.width()) / 2), int((screen.height() - size.height()) / 2),700,500)
@@ -78,12 +79,11 @@ class window(FluentWindow):
     def createTrayIcon(self):
         # self.setVisible(False)
         # 隐藏窗口
-        self.hide()
+        # self.hide()
 
         self.trayIcon = QSystemTrayIcon(self)
         self.trayIcon.setIcon(QIcon(":/qfluentwidgets/images/logo.png"))  # 替换为你的图标路径
         self.trayIcon.setVisible(True)
-
 
         # 创建上下文菜单
         self.restoreAction = QAction('主窗口', self)
@@ -107,8 +107,7 @@ class window(FluentWindow):
 
     def onRestoreActionTriggered(self):
         self.showNormal()  # 还原窗口
-        self.trayIcon.hide()
-
+        # self.trayIcon.hide()
 
     def runWindow(self):
         self.upListWindow.updateTable()
@@ -118,28 +117,28 @@ class window(FluentWindow):
         QApplication.processEvents()
 
     def onQuitActionTriggered(self):
+        self.trayIcon.deleteLater()
         self.alive = False
         self.app.quit()
 
     def closeEvent(self, event):
-        self.createTrayIcon()
+        # self.createTrayIcon()
+        self.hide()
         event.ignore()
+
 
 def startUI():
     w = window()
-    mainThread=threading.main_thread()
+    mainThread = threading.main_thread()
     while w.alive and not v.mainQuitFlag and mainThread.is_alive():
         w.runWindow()
         # print(f"{timeit(w.runWindow, number=1, globals=globals()):.6f}")
         sleep(0.001)
-
-    print("UI 退出")
-    v.mainQuitFlag=True
-
+    v.mainQuitFlag = True
 
 def startUIThread():
-    UIThread = threading.Thread(target=startUI)
-    UIThread.start()
+    v.UITh = threading.Thread(target=startUI)
+    v.UITh.start()
 
 # while w.isVisible():
 #     w.runWindow()

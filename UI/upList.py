@@ -57,11 +57,7 @@ class upListWindow(QWidget):
 
     def updateTable(self):
         self.updateTotalProgress()
-        if not v.upQueueChangeFlag:
-            return
-        v.upQueueChangeFlag = False
 
-        x = 0
         if v.currentUpLoad != None:
             self.LFileName.setText(v.currentUpLoad["fileName"])
             self.LPath.setText(os.path.dirname(v.currentUpLoad["path"]))
@@ -72,13 +68,18 @@ class upListWindow(QWidget):
             else:
                 self.fileProgress.setValue(0)
                 self.LfileProgress.setText("0.00%")
-
         else:
             self.LFileName.setText("无正在上传")
             self.LPath.setText("")
             self.LSize.setText("")
             self.fileProgress.setValue(0)
             self.LfileProgress.setText("0.00%")
+
+        if not v.upQueueChangeFlag:
+            return
+        v.upQueueChangeFlag = False
+
+        x = 0
 
         if len(v.sliceQueue) > 0 and v.currentUpLoad != None and v.sliceQueue[0]["path"] != v.currentUpLoad["path"]:
             x += 1

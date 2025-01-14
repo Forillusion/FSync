@@ -296,6 +296,7 @@ def checkThread():
                 console(3, f"\033[32m{current['fileName']}上传完成\033[0m")
             else:
                 console(3, f"\033[31m{current['fileName']}上传失败\033[0m")
+                finish["uploadSize"] -= current["size"]
                 reUpQueue.put(current)
         else:
             # print("thread3: 上传队列为空或分片队列已满")
