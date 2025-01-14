@@ -7,7 +7,7 @@ from qfluentwidgets import ScrollArea, FlowLayout, PushButton, CardWidget, BodyL
 
 from UI.config import cfg
 from task import newTask, addTask, updateTask, deleteTask, triggerTask
-from tools import removeLastSlash
+from tools import replaceAndRemoveLastSlash
 from var import v
 from UI.taskDetail import taskDetailMsgBox
 # from UI.ui_taskBlock import Ui_TaskBlock
@@ -54,8 +54,8 @@ class taskListWindow(ScrollArea):
         if w.exec():
             task["name"] = w.nameLine.text()
             task["enabled"] = w.enabledButton.isChecked()
-            task["localPath"] = removeLastSlash(w.localPathLine.text())
-            task["cloudPath"] = removeLastSlash(w.cloudPathLine.text())
+            task["localPath"] = replaceAndRemoveLastSlash(w.localPathLine.text())
+            task["cloudPath"] = replaceAndRemoveLastSlash(w.cloudPathLine.text())
             # task["localPath"] = w.localPathLine.text()
             # task["cloudPath"] = w.cloudPathLine.text()
             task["deleteCloudFile"] = w.deleteButton.isChecked()
