@@ -4,6 +4,7 @@ from time import sleep
 from api.fileList import getAllFileListOld
 from database import getCloudListToData, loadCloudData, loadLocalData, updateCloudData, updataLocalData
 from findID import findFloaderID, findFileID
+from task import savaTask
 from tools import localPathToCloud
 from var import v
 
@@ -46,7 +47,8 @@ def rebuildTask(task):
                 else:
                     updataLocalData(root+"/"+file["filename"], "create folder", 0)
 
-
+    v.cTask["status"] = "none"
+    savaTask()
     v.cTask = None
     #
 

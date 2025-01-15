@@ -215,5 +215,4 @@ def taskThread():
             if x["status"] == "waiting" or x["status"] == "interrupt":
                 startTask(x)
             if x["status"] == "rebuild":
-                x["status"] = "none"
                 rebuildTask(x)
