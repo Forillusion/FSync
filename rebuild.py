@@ -34,10 +34,10 @@ def rebuildTask(task):
 
         for file in files:
             code, fileID = findFileID(root+"/"+file)
-            if fileID != -2:
+            if code != -2:
                 updataLocalData(root+"/"+file, "create file", int(os.path.getmtime(root+"/"+file)))
-            else:
-                updataLocalData(root+"/"+file, "create file", 0)
+            # else:
+            #     updataLocalData(root+"/"+file, "create file", 0)
 
         for file in data:
             if file["filename"] not in files:
