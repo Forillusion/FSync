@@ -120,7 +120,7 @@ def preThread():
             for i in range(current["totalSlice"]):
                 sliceList.append(i + 1)
             code, parts = getListUploadParts(preuploadID)
-            print(parts)
+            # print(parts)
 
             for part in parts:
                 num = int(part["partNumber"])
@@ -258,6 +258,10 @@ def upThread():
                     break
                 else:
                     console(2, f"{current['fileName']} 分片 {current['currentSlice']} 上传失败")
+                    code, URL = getUploadUrl(current["preuploadID"], current['currentSlice'])
+                    if code == 0:
+                        current["URL"] = URL
+
                     if tryTime >= v.maxTryTime:
                         cleanFile = current["path"]
                         console(2, f"{current['fileName']} 上传失败次数超过 {v.maxTryTime} 次，加入重新上传队列")
