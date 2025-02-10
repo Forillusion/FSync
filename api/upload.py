@@ -31,7 +31,8 @@ def createFile(parentFileId, filename, etag, size):
         "parentFileId": parentFileId,
         "filename": filename,
         "etag": etag,
-        "size": size
+        "size": size,
+        "duplicate": 2
     }
     code, response = tryRequests(requests.post, url=url, headers=headers, data=data, verify=verify)
     # response = requests.post(url, headers=headers, data=data,verify=verify)
