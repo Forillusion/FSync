@@ -24,6 +24,11 @@ def loadTask():
             v.taskList = []
         else:
             v.taskList = json.loads(x)
+            for task in v.taskList:
+                if "beforeRunCMD" not in task:
+                    task["beforeRunCMD"] = ""
+                if "afterRunCMD" not in task:
+                    task["afterRunCMD"] = ""
 
 
 def savaTask():
@@ -38,6 +43,8 @@ def newTask():
         "localPath": r"",
         "cloudPath": r"",
         "deleteCloudFile": True,
+        "beforeRunCMD": "",
+        "afterRunCMD": "",
         "realTimeStatus": {
             "total": {
                 "createFolder": 0,

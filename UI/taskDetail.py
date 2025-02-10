@@ -93,12 +93,26 @@ class taskDetailMsgBox(MessageBoxBase):
         self.missedButton.setOffText("否")
         self.layout.addWidget(self.missedButton, 8, 1, 1, 1)
 
+        self.beforeCMDLable = BodyLabel("前置命令：")
+        self.layout.addWidget(self.beforeCMDLable, 9, 0, 1, 1)
+
+        self.beforeCMDLine = LineEdit()
+        self.beforeCMDLine.setText(task["beforeRunCMD"])
+        self.layout.addWidget(self.beforeCMDLine, 9, 1, 1, 2)
+
+        self.afterCMDLable = BodyLabel("后置命令：")
+        self.layout.addWidget(self.afterCMDLable, 10, 0, 1, 1)
+
+        self.afterCMDLine = LineEdit()
+        self.afterCMDLine.setText(task["afterRunCMD"])
+        self.layout.addWidget(self.afterCMDLine, 10, 1, 1, 2)
+
         if not self.newTask:
             self.runCountLable = BodyLabel("运行次数：" + str(task["runCount"]))
-            self.layout.addWidget(self.runCountLable, 9, 0, 1, 2)
+            self.layout.addWidget(self.runCountLable, 11, 0, 1, 2)
 
             self.deleteTaskButton = PushButton("删除任务")
-            self.layout.addWidget(self.deleteTaskButton, 9, 2, 1, 1)
+            self.layout.addWidget(self.deleteTaskButton, 11, 2, 1, 1)
             self.deleteTaskButton.clicked.connect(self.deleteTaskEvent)
 
         # 将组件添加到布局中

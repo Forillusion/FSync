@@ -1,5 +1,6 @@
 import json
 import multiprocessing
+import os
 import threading
 import time
 
@@ -114,6 +115,10 @@ def createTestTask():
 
 
 def beforeRunTask():
+    if v.cTask["beforeRunCMD"] != "":
+        print("执行前置命令：", v.cTask["beforeRunCMD"])
+        os.system(v.cTask["beforeRunCMD"])
+
     v.cTask["currentStartTime"] = int(time.time())
     v.cTask["runCount"] += 1
     v.cTask["status"] = "running"
@@ -163,8 +168,12 @@ def afterRunTask():
         "status": v.cTask["status"],
     }
 
+
     v.cTask["logs"].append(log)
 
+    if v.cTask["afterRunCMD"] != "":
+        print("执行后置命令：", v.cTask["afterRunCMD"])
+        os.system(v.cTask["afterRunCMD"])
 
 def startTask(task):
     v.cTask = task

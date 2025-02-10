@@ -59,6 +59,8 @@ class taskListWindow(ScrollArea):
             # task["localPath"] = w.localPathLine.text()
             # task["cloudPath"] = w.cloudPathLine.text()
             task["deleteCloudFile"] = w.deleteButton.isChecked()
+            task["beforeRunCMD"] = w.beforeCMDLine.text()
+            task["afterRunCMD"] = w.afterCMDLine.text()
             task["scheduled"]["type"] = w.scheduledBox.currentData()
             if task["scheduled"]["type"] == "time":
                 t = w.setTimePicker.time
