@@ -9,7 +9,7 @@ from database import updataBothData
 from findID import findFloaderID, findFileID, findParentID
 from api.delete import deleteFile
 from tools import localPathToCloud
-from api.upload import uploadComplete, uploadAsyncResult, createFile, getUploadUrl
+from api.upload import uploadComplete, uploadAsyncResult, createFile, getUploadUrl, getListUploadParts
 from var import v
 
 
@@ -114,12 +114,31 @@ def preThread():
             current["sliceSize"] = sliceSize
             current["totalSlice"] = math.ceil(size // sliceSize) + 1
             current["finishSlice"] = 0
-            for i in range(current["totalSlice"]):
-                slice = current.copy()
-                slice["currentSlice"] = i + 1
-                slice["sliceMD5"] = getSliceMD5(current["path"], sliceSize, i + 1)
 
-                code, slice["URL"] = getUploadUrl(current["preuploadID"], i + 1)
+
+            sliceList = []
+            for i in range(current["totalSlice"]):
+                sliceList.append(i + 1)
+            code, parts = getListUploadParts(preuploadID)
+            print(parts)
+
+            for part in parts:
+                num = int(part["partNumber"])
+                etag = part["etag"]
+                size = part["size"]
+                md5 = getSliceMD5(current["path"], sliceSize, num)
+                if etag == md5:
+                    console(1, f"\033[34m{current['fileName']} 分片 {num} 跳过\033[0m")
+                    sliceList.remove(num)
+                    current["finishSlice"] += 1
+                    finish["uploadSize"] += size
+
+            for i in range(len(sliceList)):
+                slice = current.copy()
+                slice["currentSlice"] = sliceList[i]
+                slice["sliceMD5"] = getSliceMD5(current["path"], sliceSize, sliceList[i])
+
+                code, slice["URL"] = getUploadUrl(current["preuploadID"], sliceList[i])
                 if code != 0:
                     reUpQueue.put(current)
                     if i != 0:
