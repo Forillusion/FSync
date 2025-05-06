@@ -31,6 +31,7 @@ def createFolder(parentID, folderName):
     if code != 0:
         print("createFolder", response.json())
         return code, 0
+    print(f"\033[34m创建文件夹 {folderName}\033[0m")
     return code, response.json()["data"]["dirID"]
 
 # findFloader(Token.getToken(), r"\testd22d\d2\d1d4", {":id":0})

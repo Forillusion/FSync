@@ -1,4 +1,6 @@
 import os
+import time
+from datetime import datetime
 from time import sleep
 
 from api.fileList import getAllFileListOld
@@ -11,15 +13,26 @@ from var import v
 def rebuildTask(task):
     v.cTask = task
     # 1.  使用getCloudListToData函数获取初始列表数据
+    localRoot = v.localRoot
+    if localRoot[-1]==":":
+        localRoot+="/"
+    print("localRoot", localRoot)
+
     getCloudListToData(v.cloudRoot)
     # 2.  遍历本地文件夹
-    for root, dirs, files in os.walk(v.localRoot):
-        sleep(1)
+    for root, dirs, files in os.walk(localRoot):
+        sleep(0.8)
         root = root.replace("\\", "/")
+
+        if "$RECYCLE.BIN" in dirs:
+            dirs.remove("$RECYCLE.BIN")
+        if "System Volume Information" in dirs:
+            dirs.remove("System Volume Information")
+
         print(root, dirs, files)
     #     # 3.  获取云端文件夹的文件列表
         code, dirID =findFloaderID(root)  # 获取id
-        print(dirID)
+        # print(dirID)
     #     # 获取id
         code, data = getAllFileListOld(dirID)
         if code == 0:

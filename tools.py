@@ -18,7 +18,7 @@ def tryRequests(func, **args):
             if code == 1:
                 break
             if code == 429:
-                time.sleep(1.2)
+                time.sleep(1.0)
         except Exception as e:
             print(func.__name__, args)
             print(e)
