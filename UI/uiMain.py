@@ -45,7 +45,7 @@ class window(FluentWindow):
         self.initWindow()
 
     def initWindow(self):
-        self.setWindowTitle("Demo")
+        self.setWindowTitle("FSync")
         self.setWindowIcon(QIcon(":/qfluentwidgets/images/logo.png"))
         self.navigationInterface.setAcrylicEnabled(True)  # 设置导航界面背景为亚克力效果
         self.resize(800, 600)
